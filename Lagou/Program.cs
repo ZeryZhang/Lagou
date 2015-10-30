@@ -28,6 +28,9 @@ namespace Lagou
             //webproxy.Address = uri;
             //request.Proxy = webproxy;
 
+
+
+
             request.Accept = "text/plain, */*; q=0.01";
             request.Method = "GET";
             request.Headers.Add("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3");
