@@ -16,7 +16,7 @@ namespace Lagou
             HttpUtilty httpUtilty = new HttpUtilty();
             string html = httpUtilty.SendHttpRequest();
         }
-    }
+    }  
 
     public class HttpUtilty
     {
