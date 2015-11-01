@@ -40,7 +40,7 @@ namespace Lagou
             Stream responseStream = response.GetResponseStream();
             StreamReader reader = new StreamReader(responseStream, Encoding.UTF8);
             string html = reader.ReadToEnd();
-
+            
             return html;
 
         }
@@ -55,6 +55,15 @@ namespace Lagou
             foreach (var item in jobCatgroy)
             {
                 item.SelectNodes("");
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                HtmlNode dtNode = jobCatgroy[i];
+                string href = string.Empty;
+                HtmlNode aNode = dtNode.SelectSingleNode("/dt/a");
+                var jobTypeName = aNode.InnerText;//分类名称
+                href = aNode.GetAttributeValue("href", href);
             }
 
 
