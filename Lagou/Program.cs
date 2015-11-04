@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
@@ -21,21 +22,26 @@ namespace Lagou
             JobRelative jobRelative = new JobRelative();
             string html = string.Empty;
             string url = string.Empty;
-            //jobType
+           
+            
+            ////jobType
             //html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/");
-            //jobRelative.GetJobType(html);
-            //City
+            //var jobTypes = jobRelative.GetJobType(html);
+            ////City
             //html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/zhaopin/");
-            //jobRelative.GetCitys(html);
+            //var citys = jobRelative.GetCitys(html);
+            //var jobList = jobRelative.GetAllJobs(citys, jobTypes);
+            
             url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", "深圳");
             string body = "first=false&pn=2&kd=Python";
             html = httpUtilty.SendPostHttpRequest(url, body);
-            jobRelative.GetJob(html);
-            /*
-             * 1 遍历每个城市下的每一种职位类型
-             * 2 遍历每页数据，(没数据时要处理)
-             * 
-             */
+            var returnData =  jobRelative.SerializeJob(html);
+
+            RedisQueue redisQueue = new RedisQueue();
+            bool result = redisQueue.Enqueue("Job", returnData.content.result);
+
+
+
         }
     }
 
@@ -96,7 +102,7 @@ namespace Lagou
             return cityList;
         }
 
-        public ReturnData GetJob(string html)
+        public ReturnData SerializeJob(string html)
         {
             ReturnData returnData = new ReturnData();
             if (!string.IsNullOrEmpty(html))
@@ -107,6 +113,59 @@ namespace Lagou
 
             return returnData;
         }
+
+        public List<JobEntity> GetAllJobs(List<CityEntity> citys, List<JobTypeEntity> jobTypes)
+        {
+            string url = string.Empty;
+            string postData = string.Empty;
+            var jobList = new List<JobEntity>();
+            HttpUtilty httpUtilty = new HttpUtilty();
+            JobRelative jobRelative = new JobRelative();
+
+            try
+            {
+
+                Parallel.ForEach(citys, o =>
+                {
+                    Thread.Sleep(1000);
+
+                    url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", o.CityName);
+                    Parallel.ForEach(jobTypes, c =>
+                    {
+                        Thread.Sleep(1000);
+                        for (int i = 1; i <= 30; i++)
+                        {
+                            Thread.Sleep(100);
+                            Console.WriteLine("当前是{0},第{1}页数据",c.JobName,i);
+                            postData = string.Format("first=false&pn={0}&kd={1}", i, c.JobName);
+                            string jobJson = httpUtilty.SendPostHttpRequest(url, postData);
+                            var jobdata = jobRelative.SerializeJob(jobJson);
+                            if (jobdata.content.result == null || !jobdata.content.result.Any())
+                            {
+                                Console.WriteLine("==========={0}查询完成,共{1}页数据=========", c.JobName, i);
+                                break;
+                            }
+                            else
+                            {
+                                jobList.AddRange(jobdata.content.result);
+                            }
+                        }
+
+                    });
+                });
+
+
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine("发生异常{0}",ex.Message);
+
+            }
+
+            return jobList;
+        }
+
 
     }
 
@@ -206,7 +265,7 @@ namespace Lagou
             //Uri uri = new Uri(string.Format("http://{0}:{1}", "Adrress", "Port"));
             //webproxy.Address = uri;
             //request.Proxy = webproxy;
-            
+
             request.Accept = "text/plain, */*; q=0.01";
             request.Method = "GET";
             request.Headers.Add("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3");
@@ -240,7 +299,7 @@ namespace Lagou
             request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; rv:25.0) Gecko/20100101 Firefox/25.0";
             byte[] bytes = Encoding.UTF8.GetBytes(body);
             request.ContentLength = bytes.Length;
-            request.GetRequestStream().Write(bytes,0,bytes.Length);
+            request.GetRequestStream().Write(bytes, 0, bytes.Length);
 
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             Stream responseStream = response.GetResponseStream();
