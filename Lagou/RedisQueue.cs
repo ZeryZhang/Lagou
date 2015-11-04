@@ -16,13 +16,13 @@ namespace Lagou
         private readonly IDatabase _db;
         public RedisQueue()
         {
-            ConfigurationOptions options = new ConfigurationOptions()
-            {
-                Ssl = true,
-                AllowAdmin = true
-            };
-            options.EndPoints.Add("192.168.0.121",6379);
-            _connectionMultiplexer = ConnectionMultiplexer.Connect(options);
+            //ConfigurationOptions options = new ConfigurationOptions()
+            //{
+            //    Ssl = true,
+            //    AllowAdmin = true
+            //};
+            //options.EndPoints.Add("127.0.0.1",6379);
+            _connectionMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1,6379");
             _db = _connectionMultiplexer.GetDatabase(0);
         }
 

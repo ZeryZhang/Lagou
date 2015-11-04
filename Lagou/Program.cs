@@ -22,8 +22,14 @@ namespace Lagou
             JobRelative jobRelative = new JobRelative();
             string html = string.Empty;
             string url = string.Empty;
-           
-            
+
+            RedisCache redisCache = new RedisCache();
+            redisCache.Set("zery", "zhang");
+
+            RedisQueue redisQueue = new RedisQueue();
+            bool result = redisQueue.Enqueue("Job", "Zhangqipeng");
+
+            Console.Read();
             ////jobType
             //html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/");
             //var jobTypes = jobRelative.GetJobType(html);
@@ -31,14 +37,14 @@ namespace Lagou
             //html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/zhaopin/");
             //var citys = jobRelative.GetCitys(html);
             //var jobList = jobRelative.GetAllJobs(citys, jobTypes);
-            
+
             url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", "深圳");
             string body = "first=false&pn=2&kd=Python";
             html = httpUtilty.SendPostHttpRequest(url, body);
             var returnData =  jobRelative.SerializeJob(html);
 
-            RedisQueue redisQueue = new RedisQueue();
-            bool result = redisQueue.Enqueue("Job", returnData.content.result);
+            //RedisQueue redisQueue = new RedisQueue();
+            //bool result = redisQueue.Enqueue("Job", returnData.content.result);
 
 
 
