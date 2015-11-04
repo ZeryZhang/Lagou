@@ -40,6 +40,9 @@
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="StackExchange.Redis">
+      <HintPath>dll\StackExchange.Redis.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -51,6 +54,8 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RedisCache.cs" />
+    <Compile Include="RedisQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

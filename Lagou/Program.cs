@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
@@ -17,36 +18,35 @@ namespace Lagou
         static void Main(string[] args)
         {
 
-            HttpUtility httpUtilty = new HttpUtility();
+            HttpUtilty httpUtilty = new HttpUtilty();
             JobRelative jobRelative = new JobRelative();
             string html = string.Empty;
             string url = string.Empty;
-            //jobType
-            html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/");
-            jobRelative.GetJobType(html);
-            //City
-            html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/zhaopin/");
-            jobRelative.GetCitys(html);
-
+           
+            
+            ////jobType
+            //html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/");
+            //var jobTypes = jobRelative.GetJobType(html);
+            ////City
+            //html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/zhaopin/");
+            //var citys = jobRelative.GetCitys(html);
+            //var jobList = jobRelative.GetAllJobs(citys, jobTypes);
+            
             url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", "深圳");
             string body = "first=false&pn=2&kd=Python";
             html = httpUtilty.SendPostHttpRequest(url, body);
-            jobRelative.GetJob(html);
-            /*
-             * 1 遍历每个城市下的每一种职位类型
-             * 2 遍历每页数据，(没数据时要处理)
-             * 
-             */
+            var returnData =  jobRelative.SerializeJob(html);
+
+            RedisQueue redisQueue = new RedisQueue();
+            bool result = redisQueue.Enqueue("Job", returnData.content.result);
+
+
+
         }
     }
 
     public class JobRelative
     {
-        /// <summary>
-        /// 职位大分类
-        /// </summary>
-        /// <param name="html"></param>
-        /// <returns></returns>
         public List<JobTypeEntity> GetJobType(string html)
         {
 
@@ -75,11 +75,6 @@ namespace Lagou
 
         }
 
-        /// <summary>
-        /// 取城市
-        /// </summary>
-        /// <param name="html"></param>
-        /// <returns></returns>
         public List<CityEntity> GetCitys(string html)
         {
             HtmlDocument document = new HtmlDocument();
@@ -107,17 +102,11 @@ namespace Lagou
             return cityList;
         }
 
-        /// <summary>
-        /// 具体职位信息
-        /// </summary>
-        /// <param name="html"></param>
-        /// <returns></returns>
-        public ReturnData GetJob(string html)
+        public ReturnData SerializeJob(string html)
         {
             ReturnData returnData = new ReturnData();
             if (!string.IsNullOrEmpty(html))
             {
-                
 
                 returnData = JsonConvert.DeserializeObject<ReturnData>(html);
             }
@@ -125,40 +114,58 @@ namespace Lagou
             return returnData;
         }
 
-        /// <summary>
-        /// 取所有城市所有类型的职位
-        /// 
-        /// </summary>
-        /// <param name="jobType"></param>
-        /// <param name="citys"></param>
-        /// <returns></returns>
-        public string GetAllJob(List<JobTypeEntity> jobType, List<CityEntity> citys)
+        public List<JobEntity> GetAllJobs(List<CityEntity> citys, List<JobTypeEntity> jobTypes)
         {
-
-            HttpUtility httpUtility = new HttpUtility();
+            string url = string.Empty;
+            string postData = string.Empty;
+            var jobList = new List<JobEntity>();
+            HttpUtilty httpUtilty = new HttpUtilty();
             JobRelative jobRelative = new JobRelative();
-            Parallel.ForEach(citys, o =>
+
+            try
             {
-                string url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", o.CityName);
-                foreach (var item in jobType)
+
+                Parallel.ForEach(citys, o =>
                 {
+                    Thread.Sleep(1000);
 
-                    for (int i = 1; i <= 30; i++)
+                    url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", o.CityName);
+                    Parallel.ForEach(jobTypes, c =>
                     {
-                        string postData = string.Format("first=false&pn={0}&kd={1}", i, item.JobName);
-                        var jsonData = httpUtility.SendPostHttpRequest(url, postData);
-                        ReturnData returnData = jobRelative.GetJob(jsonData);
-                        if (returnData.content.result != null)
+                        Thread.Sleep(1000);
+                        for (int i = 1; i <= 30; i++)
                         {
-                            //Save To  Db
+                            Thread.Sleep(100);
+                            Console.WriteLine("当前是{0},第{1}页数据",c.JobName,i);
+                            postData = string.Format("first=false&pn={0}&kd={1}", i, c.JobName);
+                            string jobJson = httpUtilty.SendPostHttpRequest(url, postData);
+                            var jobdata = jobRelative.SerializeJob(jobJson);
+                            if (jobdata.content.result == null || !jobdata.content.result.Any())
+                            {
+                                Console.WriteLine("==========={0}查询完成,共{1}页数据=========", c.JobName, i);
+                                break;
+                            }
+                            else
+                            {
+                                jobList.AddRange(jobdata.content.result);
+                            }
                         }
-                    }
 
-                }
-            });
+                    });
+                });
 
-            return string.Empty;
+
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine("发生异常{0}",ex.Message);
+
+            }
+
+            return jobList;
         }
+
 
     }
 
@@ -249,7 +256,7 @@ namespace Lagou
         public ContentEntity content { get; set; }
     }
 
-    public class HttpUtility
+    public class HttpUtilty
     {
         public string SendGetHttpRequest(string url)
         {
@@ -258,7 +265,7 @@ namespace Lagou
             //Uri uri = new Uri(string.Format("http://{0}:{1}", "Adrress", "Port"));
             //webproxy.Address = uri;
             //request.Proxy = webproxy;
-            
+
             request.Accept = "text/plain, */*; q=0.01";
             request.Method = "GET";
             request.Headers.Add("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3");
@@ -292,7 +299,7 @@ namespace Lagou
             request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; rv:25.0) Gecko/20100101 Firefox/25.0";
             byte[] bytes = Encoding.UTF8.GetBytes(body);
             request.ContentLength = bytes.Length;
-            request.GetRequestStream().Write(bytes,0,bytes.Length);
+            request.GetRequestStream().Write(bytes, 0, bytes.Length);
 
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             Stream responseStream = response.GetResponseStream();
