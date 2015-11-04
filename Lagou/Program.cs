@@ -17,16 +17,17 @@ namespace Lagou
         static void Main(string[] args)
         {
 
-            HttpUtilty httpUtilty = new HttpUtilty();
+            HttpUtility httpUtilty = new HttpUtility();
             JobRelative jobRelative = new JobRelative();
             string html = string.Empty;
             string url = string.Empty;
             //jobType
-            //html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/");
-            //jobRelative.GetJobType(html);
+            html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/");
+            jobRelative.GetJobType(html);
             //City
-            //html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/zhaopin/");
-            //jobRelative.GetCitys(html);
+            html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/zhaopin/");
+            jobRelative.GetCitys(html);
+
             url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", "深圳");
             string body = "first=false&pn=2&kd=Python";
             html = httpUtilty.SendPostHttpRequest(url, body);
@@ -41,6 +42,11 @@ namespace Lagou
 
     public class JobRelative
     {
+        /// <summary>
+        /// 职位大分类
+        /// </summary>
+        /// <param name="html"></param>
+        /// <returns></returns>
         public List<JobTypeEntity> GetJobType(string html)
         {
 
@@ -69,6 +75,11 @@ namespace Lagou
 
         }
 
+        /// <summary>
+        /// 取城市
+        /// </summary>
+        /// <param name="html"></param>
+        /// <returns></returns>
         public List<CityEntity> GetCitys(string html)
         {
             HtmlDocument document = new HtmlDocument();
@@ -96,16 +107,57 @@ namespace Lagou
             return cityList;
         }
 
+        /// <summary>
+        /// 具体职位信息
+        /// </summary>
+        /// <param name="html"></param>
+        /// <returns></returns>
         public ReturnData GetJob(string html)
         {
             ReturnData returnData = new ReturnData();
             if (!string.IsNullOrEmpty(html))
             {
+                
 
                 returnData = JsonConvert.DeserializeObject<ReturnData>(html);
             }
 
             return returnData;
+        }
+
+        /// <summary>
+        /// 取所有城市所有类型的职位
+        /// 
+        /// </summary>
+        /// <param name="jobType"></param>
+        /// <param name="citys"></param>
+        /// <returns></returns>
+        public string GetAllJob(List<JobTypeEntity> jobType, List<CityEntity> citys)
+        {
+
+            HttpUtility httpUtility = new HttpUtility();
+            JobRelative jobRelative = new JobRelative();
+            Parallel.ForEach(citys, o =>
+            {
+                string url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", o.CityName);
+                foreach (var item in jobType)
+                {
+
+                    for (int i = 1; i <= 30; i++)
+                    {
+                        string postData = string.Format("first=false&pn={0}&kd={1}", i, item.JobName);
+                        var jsonData = httpUtility.SendPostHttpRequest(url, postData);
+                        ReturnData returnData = jobRelative.GetJob(jsonData);
+                        if (returnData.content.result != null)
+                        {
+                            //Save To  Db
+                        }
+                    }
+
+                }
+            });
+
+            return string.Empty;
         }
 
     }
@@ -197,7 +249,7 @@ namespace Lagou
         public ContentEntity content { get; set; }
     }
 
-    public class HttpUtilty
+    public class HttpUtility
     {
         public string SendGetHttpRequest(string url)
         {
