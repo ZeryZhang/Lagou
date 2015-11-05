@@ -11,7 +11,7 @@ namespace Lagou
 {
     public class RedisQueue
     {
-
+        private object locker = new object();
         private readonly ConnectionMultiplexer _connectionMultiplexer;
         private readonly IDatabase _db;
         public RedisQueue()
@@ -38,8 +38,26 @@ namespace Lagou
             bool result = false;
             if (!string.IsNullOrEmpty(equeueName))
             {
-                RedisValue redisValue = JsonConvert.SerializeObject(value);
-                result =_db.ListLeftPush(equeueName, redisValue) > 0;
+                lock (locker)
+                {
+                    RedisValue redisValue = JsonConvert.SerializeObject(value);
+                    result = _db.ListLeftPush(equeueName, redisValue) > 0;
+                }
+            }
+
+            return result;
+        }
+
+        public bool Enqueue<T>(string equeueName, List<T> value)
+        {
+            bool result = false;
+            if (!string.IsNullOrEmpty(equeueName))
+            {
+                lock (locker)
+                {
+                    RedisValue redisValue = JsonConvert.SerializeObject(value);
+                    result = _db.ListLeftPush(equeueName, redisValue) > 0;
+                }
             }
 
             return result;
