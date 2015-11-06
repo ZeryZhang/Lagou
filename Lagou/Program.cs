@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Lagou.Repository;
 using Newtonsoft.Json;
 
 namespace Lagou
@@ -17,6 +18,19 @@ namespace Lagou
     {
         static void Main(string[] args)
         {
+
+            //EF
+            JobRepository repository = new JobRepository();
+
+            repository.Insert(new Lagou.Repository.JobEntity()
+            {
+                Score = 3424234,
+                CompanyId="534534535345",
+                CompanyLogo="533453",
+                CreateTime =  DateTime.Now
+            });
+
+
 
             HttpUtilty httpUtilty = new HttpUtilty();
             JobRelative jobRelative = new JobRelative();
@@ -46,8 +60,7 @@ namespace Lagou
             //RedisQueue redisQueue = new RedisQueue();
             //bool result = redisQueue.Enqueue("Job", returnData.content.result);
 
-
-
+       
         }
     }
 
