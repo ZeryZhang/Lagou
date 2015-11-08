@@ -56,7 +56,7 @@ namespace Lagou.Repository
         /// <summary>
         /// 公司福利
         /// </summary>
-        public IEnumerable<CompanyLabe> CompanyLabelList { get; set; }//:[节日礼物 ,带薪年假 ,绩效奖金 ,年度旅游 ]
+        public List<CompanyLabe>  CompanyLabelList { get; set; }//:[节日礼物 ,带薪年假 ,绩效奖金 ,年度旅游 ]
     }
 
     public class CompanyLabe

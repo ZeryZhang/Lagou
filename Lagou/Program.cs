@@ -19,61 +19,133 @@ namespace Lagou
         static void Main(string[] args)
         {
 
-            //EF
-            JobRepository repository = new JobRepository();
 
-            repository.Insert(new Lagou.Repository.JobEntity()
-            {
-                Score = 3424234,
-                CompanyId="534534535345",
-                CompanyLogo="533453",
-                CreateTime =  DateTime.Now
-            });
+            AnycExcute anycExcute = new AnycExcute();
+
+            Thread getJobThread = new Thread(new ThreadStart(anycExcute.GetJobSaveToRedisQueue));
+            Thread saveJobThread = new Thread(new ThreadStart(anycExcute.GetJobFromRedisQueue));
+
+            getJobThread.IsBackground = true;
+            saveJobThread.IsBackground = true;
+
+            getJobThread.Start();
+
+            //saveJobThread.Start();
+            Console.Read();
 
 
+        }
+    }
+
+
+    public class AnycExcute
+    {
+        public void GetJobSaveToRedisQueue()
+        {
 
             HttpUtilty httpUtilty = new HttpUtilty();
             JobRelative jobRelative = new JobRelative();
             string html = string.Empty;
             string url = string.Empty;
 
-            //RedisCache redisCache = new RedisCache();
-            //redisCache.Set("zery", "zhang");
-
-            //RedisQueue redisQueue = new RedisQueue();
-            //bool result = redisQueue.Enqueue("Job", "Zhangqipeng");
-
-            //Console.Read();
-            ////jobType
+            //jobType
             html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/");
             var jobTypes = jobRelative.GetJobType(html);
-            ////City
+            //City
             html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/zhaopin/");
             var citys = jobRelative.GetCitys(html);
-            var jobList = jobRelative.SerialGetAllJobs(citys, jobTypes);
+            //Save To Redis Queue
+           jobRelative.SerialGetAllJobs(citys, jobTypes);
 
-            //url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", "深圳");
-            //string body = "first=false&pn=2&kd=Python";
-            //html = httpUtilty.SendPostHttpRequest(url, body);
-            //var returnData =  jobRelative.SerializeJob(html);
-
-            //RedisQueue redisQueue = new RedisQueue();
-            //bool result = redisQueue.Enqueue("Job", returnData.content.result);
-
-       
         }
+
+        public void GetJobFromRedisQueue()
+        {
+            RedisQueue redisQueue = new RedisQueue();
+
+            var jobList =  redisQueue.Dequeue<List<JobEntity>>("Job");
+            if (jobList == null || !jobList.Any())
+            {
+                Thread.Sleep(2000);
+                GetJobFromRedisQueue();
+            }
+
+            JobRepository respository = new JobRepository();
+            respository.Insert(jobList);
+
+
+        }
+    
     }
+
+
+    public class HttpUtilty
+    {
+        public string SendGetHttpRequest(string url)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            WebProxy webproxy = new WebProxy();
+            //Uri uri = new Uri(string.Format("http://{0}:{1}", "Adrress", "Port"));
+            //webproxy.Address = uri;
+            //request.Proxy = webproxy;
+
+            request.Accept = "text/plain, */*; q=0.01";
+            request.Method = "GET";
+            request.Headers.Add("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3");
+            request.ContentLength = 0;
+            request.ContentType = "keep-alive";
+            //request.Host = "www.cnblogs.com";
+            request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; rv:25.0) Gecko/20100101 Firefox/25.0";
+
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            Stream responseStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(responseStream, Encoding.UTF8);
+            string html = reader.ReadToEnd();
+
+            return html;
+
+        }
+
+        public string SendPostHttpRequest(string url, string body)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            //WebProxy webproxy = new WebProxy();
+            //Uri uri = new Uri(string.Format("http://{0}:{1}", "Adrress", "Port"));
+            //webproxy.Address = uri;
+            //request.Proxy = webproxy;
+
+            request.Accept = "*/*";
+            request.Method = "POST";
+            request.Headers.Add("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3");
+            request.ContentType = "application/x-www-form-urlencoded; charset=UTF-8"; //表单提交
+            //request.Host = "www.cnblogs.com";
+            request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; rv:25.0) Gecko/20100101 Firefox/25.0";
+            byte[] bytes = Encoding.UTF8.GetBytes(body);
+            request.ContentLength = bytes.Length;
+            request.GetRequestStream().Write(bytes, 0, bytes.Length);
+
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            Stream responseStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(responseStream, Encoding.UTF8);
+            string html = reader.ReadToEnd();
+
+            return html;
+        }
+
+
+    }
+
 
     public class JobRelative
     {
-        public List<JobTypeEntity> GetJobType(string html)
+        public List<JobTypeModel> GetJobType(string html)
         {
 
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(html);
             HtmlNodeCollection jobCatgroy = document.DocumentNode.SelectNodes("//dl[@class='reset']"); //取大分类
 
-            List<JobTypeEntity> JobTypeList = new List<JobTypeEntity>();
+            List<JobTypeModel> JobTypeList = new List<JobTypeModel>();
             //大分类
             for (int i = 0; i < 3; i++)
             {
@@ -83,7 +155,7 @@ namespace Lagou
 
                 List<HtmlNode> jobNodes = dlNode.SelectNodes("dd/a").ToList();
                 jobNodes.ForEach(o => JobTypeList.Add(
-                    new JobTypeEntity()
+                    new JobTypeModel()
                     {
                         JobName = o.InnerText,
                         JobHref = o.GetAttributeValue("href", string.Empty)
@@ -94,16 +166,16 @@ namespace Lagou
 
         }
 
-        public List<CityEntity> GetCitys(string html)
+        public List<CityModel> GetCitys(string html)
         {
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(html);
-            List<CityEntity> cityList = new List<CityEntity>();
+            List<CityModel> cityList = new List<CityModel>();
             List<HtmlNode> hotCityNodes = document.DocumentNode.SelectNodes("//div[@class='has-more'][1]/li/a[position()>1]").ToList();
             HtmlNode li = document.DocumentNode.SelectNodes("//li[@class='other']").FirstOrDefault();
             List<HtmlNode> otherCityNodes = li.SelectNodes("a").ToList();
             hotCityNodes.ForEach(o => cityList.Add(
-                    new CityEntity()
+                    new CityModel()
                     {
                         CityName = o.InnerText,
                         CityHref = o.GetAttributeValue("href", string.Empty)
@@ -111,7 +183,7 @@ namespace Lagou
                 ));
 
             otherCityNodes.ForEach(o => cityList.Add(
-                   new CityEntity()
+                   new CityModel()
                    {
                        CityName = o.InnerText,
                        CityHref = o.GetAttributeValue("href", string.Empty)
@@ -133,11 +205,11 @@ namespace Lagou
             return returnData;
         }
 
-        public List<JobEntity> ParallelGetAllJobs(List<CityEntity> citys, List<JobTypeEntity> jobTypes)
+        public List<JobModel> ParallelGetAllJobs(List<CityModel> citys, List<JobTypeModel> jobTypes)
         {
             string url = string.Empty;
             string postData = string.Empty;
-            var jobList = new List<JobEntity>();
+            var jobList = new List<JobModel>();
             HttpUtilty httpUtilty = new HttpUtilty();
             JobRelative jobRelative = new JobRelative();
             RedisQueue redisQueue = new RedisQueue();
@@ -192,11 +264,11 @@ namespace Lagou
 
 
 
-        public List<JobEntity> SerialGetAllJobs(List<CityEntity> citys, List<JobTypeEntity> jobTypes)
+        public List<JobModel> SerialGetAllJobs(List<CityModel> citys, List<JobTypeModel> jobTypes)
         {
             string url = string.Empty;
             string postData = string.Empty;
-            var jobList = new List<JobEntity>();
+            var jobList = new List<JobModel>();
             HttpUtilty httpUtilty = new HttpUtilty();
             JobRelative jobRelative = new JobRelative();
             RedisQueue redisQueue = new RedisQueue();
@@ -209,8 +281,8 @@ namespace Lagou
                     {
                         for (int i = 1; i <= 30; i++)
                         {
-                            Thread.Sleep(1000);
-                            Console.WriteLine("当前城市{0}职位{1},第{2}页数据",city.CityName, jobType.JobName, i);
+                            Thread.Sleep(1500);
+                            Console.WriteLine("当前城市{0}职位{1},第{2}页数据", city.CityName, jobType.JobName, i);
                             postData = string.Format("first=false&pn={0}&kd={1}", i, jobType.JobName);
 
                             string jobJson = httpUtilty.SendPostHttpRequest(url, postData);
@@ -240,6 +312,8 @@ namespace Lagou
 
                 Console.WriteLine("发生异常{0}", ex.Message);
 
+
+
             }
 
             return jobList;
@@ -247,21 +321,21 @@ namespace Lagou
 
     }
 
-    public class JobTypeEntity
+    public class JobTypeModel
     {
         public string JobName { get; set; }
 
         public string JobHref { get; set; }
     }
 
-    public class CityEntity
+    public class CityModel
     {
         public string CityName { get; set; }
 
         public string CityHref { get; set; }
     }
 
-    public class JobEntity
+    public class JobModel
     {
         public int score { get; set; }
         public DateTime createTime { get; set; }
@@ -321,7 +395,7 @@ namespace Lagou
         public int totalPageCount { get; set; }
         public int currentPageNo { get; set; }
         public bool hasPreviousPage { get; set; }
-        public List<JobEntity> result { get; set; }
+        public List<JobModel> result { get; set; }
     }
 
     public class ReturnData
@@ -332,62 +406,6 @@ namespace Lagou
         public string msg { get; set; }
         public string code { get; set; }
         public ContentEntity content { get; set; }
-    }
-
-    public class HttpUtilty
-    {
-        public string SendGetHttpRequest(string url)
-        {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            WebProxy webproxy = new WebProxy();
-            //Uri uri = new Uri(string.Format("http://{0}:{1}", "Adrress", "Port"));
-            //webproxy.Address = uri;
-            //request.Proxy = webproxy;
-
-            request.Accept = "text/plain, */*; q=0.01";
-            request.Method = "GET";
-            request.Headers.Add("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3");
-            request.ContentLength = 0;
-            request.ContentType = "keep-alive";
-            //request.Host = "www.cnblogs.com";
-            request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; rv:25.0) Gecko/20100101 Firefox/25.0";
-
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(responseStream, Encoding.UTF8);
-            string html = reader.ReadToEnd();
-
-            return html;
-
-        }
-
-        public string SendPostHttpRequest(string url, string body)
-        {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            //WebProxy webproxy = new WebProxy();
-            //Uri uri = new Uri(string.Format("http://{0}:{1}", "Adrress", "Port"));
-            //webproxy.Address = uri;
-            //request.Proxy = webproxy;
-
-            request.Accept = "*/*";
-            request.Method = "POST";
-            request.Headers.Add("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3");
-            request.ContentType = "application/x-www-form-urlencoded; charset=UTF-8"; //表单提交
-            //request.Host = "www.cnblogs.com";
-            request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; rv:25.0) Gecko/20100101 Firefox/25.0";
-            byte[] bytes = Encoding.UTF8.GetBytes(body);
-            request.ContentLength = bytes.Length;
-            request.GetRequestStream().Write(bytes, 0, bytes.Length);
-
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(responseStream, Encoding.UTF8);
-            string html = reader.ReadToEnd();
-
-            return html;
-        }
-
-
     }
 
 
