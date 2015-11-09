@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lagou", "Lagou\Lagou.csproj", "{5513E390-6344-4823-A3A5-12C8B6F36BC2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lagou.Repository", "Lagou.Repository\Lagou.Repository.csproj", "{DF87C006-DDB3-4EF2-8091-2BE5D456919F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LagouDataAnalyze", "LagouDataAnalyze\LagouDataAnalyze.csproj", "{4672379E-1F43-46DB-89DD-929E71C4C7D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{DF87C006-DDB3-4EF2-8091-2BE5D456919F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF87C006-DDB3-4EF2-8091-2BE5D456919F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF87C006-DDB3-4EF2-8091-2BE5D456919F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4672379E-1F43-46DB-89DD-929E71C4C7D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4672379E-1F43-46DB-89DD-929E71C4C7D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4672379E-1F43-46DB-89DD-929E71C4C7D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4672379E-1F43-46DB-89DD-929E71C4C7D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

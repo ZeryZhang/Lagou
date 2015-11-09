@@ -55,6 +55,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommonException.cs" />
+    <Compile Include="LogHelper.cs" />
+    <Compile Include="Model\ContentModel.cs" />
+    <Compile Include="Model\JobModel.cs" />
+    <Compile Include="Model\ReturnData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedisCache.cs" />

@@ -12,8 +12,8 @@ namespace Lagou
     public class RedisQueue
     {
         private object locker = new object();
-        private  readonly ConnectionMultiplexer _connectionMultiplexer;
-        private  readonly IDatabase _db;
+        private static readonly ConnectionMultiplexer _connectionMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1,6379");
+        private static readonly IDatabase _db = _connectionMultiplexer.GetDatabase(0);
         public RedisQueue()
         {
             //ConfigurationOptions options = new ConfigurationOptions()
@@ -22,8 +22,8 @@ namespace Lagou
             //    AllowAdmin = true
             //};
             //options.EndPoints.Add("127.0.0.1",6379);
-            _connectionMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1,6379");
-            _db = _connectionMultiplexer.GetDatabase(0);
+            //_connectionMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1,6379");
+            //_db = _connectionMultiplexer.GetDatabase(0);
         }
 
        

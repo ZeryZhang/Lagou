@@ -40,12 +40,14 @@ namespace Lagou.Repository
 
             using (DbConnection conn = dapperHelper.GetConnection())
             {
+                conn.Open();
+
                 using (var tran = conn.BeginTransaction())
                 {
                     try
                     {
-                        conn.Open();
                         conn.Execute(sql, entity,tran,20);
+                        tran.Commit();
                     }
                     catch (Exception ex)
                     {
