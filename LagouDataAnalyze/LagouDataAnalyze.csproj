@@ -243,7 +243,28 @@
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\HelpPageApiModel.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\ApiGroup.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
+    <None Include="Properties\PublishProfiles\Lagou.pubxml" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\bar.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\chord.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\eventRiver.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\force.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\funnel.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\gauge.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\heatmap.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\k.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\line.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\map.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\pie.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\radar.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\scatter.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\tree.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\treemap.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\venn.js" />
+    <Content Include="Scripts\echarts\build\dist\chart\wordCloud.js" />
+    <Content Include="Scripts\echarts\build\dist\echarts-all.js" />
+    <Content Include="Scripts\echarts\build\dist\echarts.js" />
+    <Content Include="Scripts\echarts\build\echarts-optimize-conf.js" />
     <Content Include="Scripts\jquery-1.8.2.js" />
     <Content Include="Scripts\jquery-1.8.2.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
@@ -258,6 +279,7 @@
     <Content Include="Scripts\knockout-2.2.0.debug.js" />
     <Content Include="Scripts\knockout-2.2.0.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\sqlScript.sql" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
