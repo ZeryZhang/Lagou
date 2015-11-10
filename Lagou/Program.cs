@@ -22,18 +22,6 @@ namespace Lagou
         private static AsynExcute asynExcute = new AsynExcute();
         static void Main(string[] args)
         {
-            try
-            {
-                int i = 0;
-                int j = 1;
-                var k = j/i;
-            }
-            catch (Exception ex)
-            {
-                    
-               new CommonException(ex.Message,ex);
-            }
-
 
             AsynExcute anycExcute = new AsynExcute();
 
