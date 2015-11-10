@@ -1,5 +1,76 @@
 ﻿@{
-    ViewBag.Title = "Index";
+    @*Layout = "echarts";*@
 }
 
-<h2>Index Lagou Data</h2>
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>百度Echarts</title>
+</head>
+<body>
+    <div id="main" style="height: 400px; background-color: #ECECEC;"></div>
+    <script src="~/Scripts/jquery-1.8.2.min.js"></script>
+    <script src="~/Scripts/echarts/build/dist/echarts.js"></script>
+
+    <script type="text/javascript">
+
+        $(function() {
+
+            require.config({
+                paths: {
+                    echarts: "/Scripts/echarts/build/dist"
+                }
+            });
+
+            require(
+            [
+                'echarts',
+                'echarts/chart/bar'//按需加载具体的图表模块
+            ],
+                function(ec) {
+                    // 基于准备好的dom，初始化echarts图表
+                    var myChart = ec.init(document.getElementById('main'));
+
+                    var option = {
+                        tooltip: {
+                            show: true
+                        },
+                        legend: {
+                            data: ['销量']
+                        },
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: [
+                            {
+                                "name": "销量",
+                                "type": "bar",
+                                "data": [5, 20, 40, 10, 10, 20]
+                            }
+                        ]
+                    };
+                    
+                    // 为echarts对象加载数据 
+                    myChart.setOption(option);
+                }
+            
+             
+            );
+            
+
+        });
+
+
+    </script>
+</body>
+</html>
