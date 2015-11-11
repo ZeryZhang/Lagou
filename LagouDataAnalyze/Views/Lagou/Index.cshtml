@@ -8,11 +8,11 @@
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>百度Echarts</title>
+    <script src="~/Scripts/jquery-1.8.2.min.js"></script>
+    <script src="~/Scripts/echarts/build/dist/echarts.js"></script>
 </head>
 <body>
     <div id="main" style="height: 400px; background-color: #ECECEC;"></div>
-    <script src="~/Scripts/jquery-1.8.2.min.js"></script>
-    <script src="~/Scripts/echarts/build/dist/echarts.js"></script>
 
     <script type="text/javascript">
 
@@ -24,11 +24,22 @@
                 }
             });
 
+            //柱状图
+            bar();
+
+
+        });
+
+
+        function bar() {
+            
+            getbarData();
+
             require(
-            [
-                'echarts',
-                'echarts/chart/bar'//按需加载具体的图表模块
-            ],
+                [
+                    'echarts',
+                    'echarts/chart/bar'//按需加载具体的图表模块
+                ],
                 function(ec) {
                     // 基于准备好的dom，初始化echarts图表
                     var myChart = ec.init(document.getElementById('main'));
@@ -59,17 +70,22 @@
                             }
                         ]
                     };
-                    
+
                     // 为echarts对象加载数据 
                     myChart.setOption(option);
                 }
-            
-             
             );
-            
+        }
 
-        });
-
+        function getbarData() {
+            $.ajax({
+                url: "/LagouData/QueryJCityNeedJobNum",
+                type: "GET",
+                success: function(data) {
+                    alert(stringifyJson(data));
+                }
+            });
+        }
 
     </script>
 </body>

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using Lagou.Repository.Entity;
 
 namespace Lagou.Repository
 {
@@ -46,7 +47,7 @@ namespace Lagou.Repository
                 {
                     try
                     {
-                        conn.Execute(sql, entity,tran,20);
+                        conn.Execute(sql, entity, tran, 20);
                         tran.Commit();
                     }
                     catch (Exception ex)
@@ -57,5 +58,55 @@ namespace Lagou.Repository
                 }
             }
         }
+
+
+        /// <summary>
+        /// 城市职位需求总数
+        /// </summary>
+        /// <returns></returns>
+        public List<CityNeedJobNumEntity> QueryJCityNeedJobNum()
+        {
+            var jobList = new List<CityNeedJobNumEntity>();
+            string sql = @"SELECT TOP 15
+                                COUNT(City) [JobNum] ,
+                                City 
+                        FROM    dbo.Job
+                        GROUP BY City 
+                        ORDER BY JobNum DESC";
+
+            using (var conn = dapperHelper.GetConnection())
+            {
+                conn.Open();
+                jobList = conn.Query<CityNeedJobNumEntity>(sql).ToList();
+            }
+
+            return jobList;
+        }
+
+        /// <summary>
+        /// 查询城市的公司总数
+        /// </summary>
+        /// <returns></returns>
+        public List<CityCompanyNumEntity> QueryCityCompanyNum()
+        {
+            var companyList = new List<CityCompanyNumEntity>();
+            string sql = @"SELECT City,COUNT(DISTINCT CompanyName) AS CompanyNum
+                        FROM Job
+                        GROUP BY City  ORDER BY CompanyNum DESC ";
+
+            using (var conn = dapperHelper.GetConnection())
+            {
+                conn.Open();
+                companyList = conn.Query<CityCompanyNumEntity>(sql).ToList();
+            }
+
+            return companyList;
+        }
+
+
+
+
+
+
     }
 }
