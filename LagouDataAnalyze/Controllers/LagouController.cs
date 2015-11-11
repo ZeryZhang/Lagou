@@ -13,6 +13,7 @@ namespace LagouDataAnalyze.Controllers
 
         public ActionResult Index()
         {
+            
             return View();
         }
 
