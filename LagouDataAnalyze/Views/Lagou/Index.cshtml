@@ -79,9 +79,9 @@
 
         function getbarData() {
             $.ajax({
-                url: "/LagouData/QueryJCityNeedJobNum",
+                url: "/Lagou/QueryJCityNeedJobNum",
                 type: "GET",
-                success: function(data) {
+                success: function (data) {
                     alert(stringifyJson(data));
                 }
             });

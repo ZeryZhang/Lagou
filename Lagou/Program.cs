@@ -26,13 +26,13 @@ namespace Lagou
             AsynExcute anycExcute = new AsynExcute();
 
             //爬取数据
-            //Thread getJobThread = new Thread(new ThreadStart(anycExcute.SaveToRedisQueue));
-            //getJobThread.IsBackground = true;
-            //getJobThread.Start();
+            Thread getJobThread = new Thread(new ThreadStart(anycExcute.SaveToRedisQueue));
+            getJobThread.IsBackground = true;
+            getJobThread.Start();
 
 
             //定时器扫描Redis队列数据 存入数据库中
-            //InitThreadTimer();
+            InitThreadTimer();
             Console.Read();
 
 
@@ -166,7 +166,7 @@ namespace Lagou
 
             HtmlDocument document = new HtmlDocument();
             document.LoadHtml(html);
-            HtmlNodeCollection jobCatgroy = document.DocumentNode.SelectNodes("//dl[@class='reset']"); //取大分类
+            HtmlNodeCollection jobCatgroy = document.DocumentNode.SelectNodes("//div[@class='menu_sub']/dl"); //取大分类
 
             List<JobTypeModel> JobTypeList = new List<JobTypeModel>();
             //大分类
