@@ -16,11 +16,11 @@
 
     <script type="text/javascript">
 
-        require.config({
-            paths: {
-                echarts: "/Scripts/echarts/build/dist"
-            }
-        });
+            require.config({
+                paths: {
+                    echarts: "/Scripts/echarts/build/dist"
+                }
+            });
 
         $(function () {
             //柱状图
@@ -30,7 +30,7 @@
 
 
         function bar() {
-
+            
             var result = getbarData();
             citys = JSON.parse(result);
 
@@ -96,7 +96,7 @@
                         ]
                     };
 
-                    // 为echarts对象加载数据
+                    // 为echarts对象加载数据 
                     myChart.setOption(option);
                 }
             );

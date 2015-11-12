@@ -16,7 +16,7 @@ namespace Lagou.Repository
         private static DbConnection connection;
         private  string connectionString = "Data Source=192.168.0.19;Initial Catalog=HKLG;User ID=sa;Pwd=123456";
         //private readonly string connectionString = "Data Source=Zery-Zhang;Initial Catalog=HKLG;User ID=sa;Pwd=123456";
-
+        
 
         public  DbConnection GetConnection()
         {
