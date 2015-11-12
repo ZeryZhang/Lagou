@@ -20,7 +20,8 @@ namespace Lagou
     {
         private static Timer timer;
         private static AsynExcute asynExcute = new AsynExcute();
-        
+        private static RedisQueue redisQueue = new RedisQueue();
+
         static void Main(string[] args)
         {
 
@@ -48,8 +49,7 @@ namespace Lagou
         }
         public static void SaveToDB(object obj)
         {
-
-            RedisQueue redisQueue = new RedisQueue();
+           
             var jobList = redisQueue.Dequeue<List<JobEntity>>("Job");
             if (jobList == null || !jobList.Any())
             {
@@ -65,6 +65,11 @@ namespace Lagou
 
     public class AsynExcute
     {
+        private RedisQueue redisQueue;
+        public AsynExcute()
+        {
+            redisQueue = new RedisQueue();
+        }
         public void SaveToRedisQueue()
         {
 
@@ -80,7 +85,9 @@ namespace Lagou
             html = httpUtilty.SendGetHttpRequest("http://www.lagou.com/zhaopin/");
             var citys = jobRelative.GetCitys(html);
             //Save To Redis Queue
-            jobRelative.SerialGetAllJobs(citys, jobTypes);
+            var jobs = jobRelative.SerialGetAllJobs(citys, jobTypes);
+            
+            redisQueue.Enqueue("Job", jobs);
 
         }
 
@@ -305,7 +312,7 @@ namespace Lagou
                     {
                         for (int i = 1; i <= 30; i++)
                         {
-                            Thread.Sleep(1500);
+                            Thread.Sleep(1000);
                             Console.WriteLine("当前城市{0}职位{1},第{2}页数据", city.CityName, jobType.JobName, i);
                             postData = string.Format("first=false&pn={0}&kd={1}", i, jobType.JobName);
 

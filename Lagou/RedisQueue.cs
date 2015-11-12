@@ -12,18 +12,18 @@ namespace Lagou
     public class RedisQueue
     {
         private object locker = new object();
-        private static readonly ConnectionMultiplexer _connectionMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1,6379");
-        private static readonly IDatabase _db = _connectionMultiplexer.GetDatabase(0);
+        private   ConnectionMultiplexer _connectionMultiplexer; 
+        private  IDatabase _db;
         public RedisQueue()
         {
-            //ConfigurationOptions options = new ConfigurationOptions()
-            //{
-            //    Ssl = true,
-            //    AllowAdmin = true
-            //};
-            //options.EndPoints.Add("127.0.0.1",6379);
-            //_connectionMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1,6379");
-            //_db = _connectionMultiplexer.GetDatabase(0);
+            ConfigurationOptions options = new ConfigurationOptions()
+            {
+                Ssl = true,
+                AllowAdmin = true
+            };
+            options.EndPoints.Add("127.0.0.1", 6379);
+            _connectionMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1,6379");
+            _db = _connectionMultiplexer.GetDatabase(0);
         }
 
        
@@ -75,6 +75,12 @@ namespace Lagou
         {
             if (!string.IsNullOrEmpty(equeueName))
             {
+
+                if (!_db.KeyExists("Job"))
+                {
+                    return default(T);
+                }
+
                RedisValue value =  _db.ListRightPop(equeueName);
                 if (value.HasValue)
                 {

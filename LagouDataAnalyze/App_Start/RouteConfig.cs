@@ -19,11 +19,6 @@ namespace LagouDataAnalyze
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
 
-            routes.MapRoute(
-                 name: "ApiDefault",
-                 url: "api/{controller}/{action}/{id}",
-                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
-             );
 
         }
     }
