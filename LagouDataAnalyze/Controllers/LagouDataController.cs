@@ -14,7 +14,7 @@ namespace LagouDataAnalyze.Controllers
     public class LagouDataController : ApiController
     {
         private JobRepository repository;
-        public LagouDataController ()
+        public LagouDataController()
         {
             repository = new JobRepository();
         }
@@ -27,17 +27,29 @@ namespace LagouDataAnalyze.Controllers
 
 
         /// <summary>
-        /// 城市职位需求总数
+        /// 城市职位需求总数与公司总数
         /// </summary>
         /// <returns></returns>
         [HttpGet]
         public string QueryJCityNeedJobNum()
         {
-            var result =  repository.QueryJCityNeedJobNum();
-            var json =  JsonConvert.SerializeObject(result);
+            var jobCount = repository.QueryJCityNeedJobNum();
+            var companyCount = repository.QueryCityCompanyNum();
+
+            jobCount.ForEach(o =>
+            {
+                var company = companyCount.FirstOrDefault(c => c.City == o.City);
+                if (company != null)
+                {
+                    o.CompanyNum = company.CompanyNum;
+                }
+            });
+            var json = JsonConvert.SerializeObject(jobCount);
 
             return json;
         }
+
+
 
         // GET api/values/5
         public string Get(int id)

@@ -16,45 +16,57 @@
 
     <script type="text/javascript">
 
-        $(function() {
+        require.config({
+            paths: {
+                echarts: "/Scripts/echarts/build/dist"
+            }
+        });
 
-            require.config({
-                paths: {
-                    echarts: "/Scripts/echarts/build/dist"
-                }
-            });
-
+        $(function () {
             //柱状图
             bar();
-
 
         });
 
 
         function bar() {
-            
-            getbarData();
+
+            var result = getbarData();
+            citys = JSON.parse(result);
+
+            var cityArray = new Array();
+            var jobNumArray = new Array();
+            var companyArray = new Array();
+
+            for (var i = 0; i < citys.length; i++) {
+                cityArray[i] = citys[i].City;
+                jobNumArray[i] = citys[i].JobNum;
+                companyArray[i] = citys[i].CompanyNum;
+            }
 
             require(
                 [
                     'echarts',
                     'echarts/chart/bar'//按需加载具体的图表模块
                 ],
-                function(ec) {
+                function (ec) {
                     // 基于准备好的dom，初始化echarts图表
                     var myChart = ec.init(document.getElementById('main'));
 
                     var option = {
+                        title: {
+                            text: "城市对职位的需求数"
+                        },
                         tooltip: {
                             show: true
                         },
                         legend: {
-                            data: ['销量']
+                            data: ['岗位需求量', '公司数量']
                         },
                         xAxis: [
                             {
                                 type: 'category',
-                                data: ["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
+                                data: cityArray//["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
                             }
                         ],
                         yAxis: [
@@ -64,29 +76,49 @@
                         ],
                         series: [
                             {
-                                "name": "销量",
-                                "type": "bar",
-                                "data": [5, 20, 40, 10, 10, 20]
+                                name: "岗位需求量",
+                                type: "bar",
+                                data: jobNumArray,
+                                markPoint: {
+                                    data:[{type:"max",name:"最多"}]
+                                }
+                            },
+                            {
+                                name: "公司数量",
+                                type: "bar",
+                                data: companyArray,
+                                markPoint: {
+                                    data: [
+                                            { type: "max", name: "最高数据" }
+                                    ]
+                                }
                             }
                         ]
                     };
 
-                    // 为echarts对象加载数据 
+                    // 为echarts对象加载数据
                     myChart.setOption(option);
                 }
             );
         }
 
+
         function getbarData() {
+            var citys;
             $.ajax({
-                url: "/LagouData/QueryJCityNeedJobNum",
+                url: "/api/LagouData/QueryJCityNeedJobNum",
+                async: false,
                 type: "GET",
-                success: function(data) {
-                    alert(stringifyJson(data));
+                success: function (data) {
+                    citys = data;
                 }
             });
+
+            return citys;
         }
 
     </script>
+
+   
 </body>
 </html>

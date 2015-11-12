@@ -45,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DapperHelper.cs" />
-    <Compile Include="Entity\CityNeedJobNumEntity.cs" />
+    <Compile Include="Entity\CommonEntity.cs" />
     <Compile Include="Entity\JobEntity.cs" />
     <Compile Include="JobRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

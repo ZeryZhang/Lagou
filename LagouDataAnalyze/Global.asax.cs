@@ -17,9 +17,9 @@ namespace LagouDataAnalyze
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
-            
-            RouteConfig.RegisterRoutes(RouteTable.Routes);
             WebApiConfig.Register(GlobalConfiguration.Configuration);
+            RouteConfig.RegisterRoutes(RouteTable.Routes);
+           
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }

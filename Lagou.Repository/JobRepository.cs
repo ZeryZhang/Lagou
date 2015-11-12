@@ -64,9 +64,9 @@ namespace Lagou.Repository
         /// 城市职位需求总数
         /// </summary>
         /// <returns></returns>
-        public List<CityNeedJobNumEntity> QueryJCityNeedJobNum()
+        public List<CityCompanyJobEntity> QueryJCityNeedJobNum()
         {
-            var jobList = new List<CityNeedJobNumEntity>();
+            var jobList = new List<CityCompanyJobEntity>();
             string sql = @"SELECT TOP 15
                                 COUNT(City) [JobNum] ,
                                 City 
@@ -77,7 +77,7 @@ namespace Lagou.Repository
             using (var conn = dapperHelper.GetConnection())
             {
                 conn.Open();
-                jobList = conn.Query<CityNeedJobNumEntity>(sql).ToList();
+                jobList = conn.Query<CityCompanyJobEntity>(sql).ToList();
             }
 
             return jobList;
@@ -87,9 +87,9 @@ namespace Lagou.Repository
         /// 查询城市的公司总数
         /// </summary>
         /// <returns></returns>
-        public List<CityCompanyNumEntity> QueryCityCompanyNum()
+        public List<CityCompanyJobEntity> QueryCityCompanyNum()
         {
-            var companyList = new List<CityCompanyNumEntity>();
+            var companyList = new List<CityCompanyJobEntity>();
             string sql = @"SELECT City,COUNT(DISTINCT CompanyName) AS CompanyNum
                         FROM Job
                         GROUP BY City  ORDER BY CompanyNum DESC ";
@@ -97,7 +97,7 @@ namespace Lagou.Repository
             using (var conn = dapperHelper.GetConnection())
             {
                 conn.Open();
-                companyList = conn.Query<CityCompanyNumEntity>(sql).ToList();
+                companyList = conn.Query<CityCompanyJobEntity>(sql).ToList();
             }
 
             return companyList;
