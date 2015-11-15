@@ -75,13 +75,20 @@ namespace Lagou
         {
             if (!string.IsNullOrEmpty(equeueName))
             {
-
                 if (!_db.KeyExists("Job"))
                 {
                     return default(T);
                 }
 
-               RedisValue value =  _db.ListRightPop(equeueName);
+                /*
+                “System.TimeoutException”类型的未经处理的异常在 StackExchange.Redis.dll 中发生 
+                    其他信息: Timeout performing RPOP Job, inst: 2, mgr: ProcessReadQueue, err: never, 
+                    queue: 0, qu: 0, qs: 0, qc: 0, wr: 0, wq: 0, in: 0, ar: 1, 
+                    IOCP: (Busy=0,Free=1000,Min=4,Max=1000), WORKER: (Busy=6,Free=1017,Min=4,Max=1023),
+                    clientName: ZERY-ZHANG
+                */
+                //可能问题stockExchange dll 有问题。2 redis 服务有问题 不稳定，3 如果队列中没有数据 再用pop会不会有问题？
+                RedisValue value =  _db.ListRightPop(equeueName);
                 if (value.HasValue)
                 {
                     return JsonConvert.DeserializeObject<T>(value);
