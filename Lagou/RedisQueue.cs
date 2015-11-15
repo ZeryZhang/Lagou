@@ -18,10 +18,10 @@ namespace Lagou
         {
             ConfigurationOptions options = new ConfigurationOptions()
             {
-                Ssl = true,
-                AllowAdmin = true
+                Ssl = false,
+                AllowAdmin = false
             };
-            options.EndPoints.Add("127.0.0.1", 6379);
+           // options.EndPoints.Add("127.0.0.1", 6379);
             _connectionMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1,6379");
             _db = _connectionMultiplexer.GetDatabase(0);
         }

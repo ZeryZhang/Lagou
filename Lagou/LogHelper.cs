@@ -18,7 +18,7 @@ namespace Lagou
         {
             try
             {
-                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lagoulog.txt");
+                string path = Path.Combine(AppDomain.CurrentDomain.DynamicDirectory, "lagoulog.txt");
                 bool isExists = File.Exists(path);
                 if (!isExists)
                 {
@@ -32,10 +32,9 @@ namespace Lagou
                 wirter.Close();
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                
             }
         }
     }

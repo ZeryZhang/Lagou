@@ -22,8 +22,8 @@ namespace Lagou
                 AllowAdmin = true
             };
 
-            options.EndPoints.Add("localhost",6379);
-            _connectionMultiplexer = ConnectionMultiplexer.Connect(options);
+            //options.EndPoints.Add("127.0.0.1",6379);
+            _connectionMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1,6379");
             _db = _connectionMultiplexer.GetDatabase(0);
         }
 

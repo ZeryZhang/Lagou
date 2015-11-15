@@ -23,7 +23,7 @@ namespace Lagou
 
         public CommonException(string message, Exception innerException) : base(message, innerException)
         {
-            string errorMgs = string.Format(" 错误来源:{0}\r\n 错误信息:{1}\r\n 调用堆栈{2}\r\n ", innerException.Source,message, innerException.StackTrace);
+            string errorMgs = string.Format(" 错误来源:{0}\r\n 错误信息:{1}\r\n 调用堆栈{2}\r\n 异常时间:{3} ", innerException.Source,message, innerException.StackTrace,DateTime.Now);
             LogHelper.Writetxtlog(errorMgs);
         }
 

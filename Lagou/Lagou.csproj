@@ -56,6 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonException.cs" />
+    <Compile Include="HttpUtility.cs" />
+    <Compile Include="JobUtility.cs" />
     <Compile Include="LogHelper.cs" />
     <Compile Include="Model\ContentModel.cs" />
     <Compile Include="Model\JobModel.cs" />
