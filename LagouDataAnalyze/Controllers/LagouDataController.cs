@@ -49,6 +49,19 @@ namespace LagouDataAnalyze.Controllers
             return json;
         }
 
+        /// <summary>
+        /// 城市对某一职位的需求数据
+        /// </summary>
+        /// <param name="positionName"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public string QueryPositionNum(string positionName)
+        {
+            var jobCount = repository.QueryPositionNum(positionName);
+
+            return JsonConvert.SerializeObject(jobCount);
+                
+        }
 
 
         // GET api/values/5

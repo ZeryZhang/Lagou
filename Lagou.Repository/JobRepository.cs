@@ -102,9 +102,35 @@ namespace Lagou.Repository
 
             return companyList;
         }
+        /// <summary>
+        /// 查询城市某职位的需求数
+        /// </summary>
+        /// <param name="positionName"></param>
+        /// <returns></returns>
+        public List<CityCompanyJobEntity> QueryPositionNum(string positionName)
+        {
+            var list = new List<CityCompanyJobEntity>();
 
+            string sql = string.Format(@"SELECT COUNT(*)[JobNum],city FROM Job WHERE PositionName ='{0}'
+                            GROUP BY City",positionName);
+            using (var conn = dapperHelper.GetConnection())
+            {
+                conn.Open();
+                list = conn.Query<CityCompanyJobEntity>(sql).ToList();
+            }
 
+            return list;
+        }
 
+        // 同一职位不同城市的薪水差异常
+
+        //薪水城市年限的差异
+
+        //城市对哪个年限的需求是最大的
+
+        //哪个年限的薪资水平是最高的
+
+        //每个年限，每个城市的平均薪水
 
 
 

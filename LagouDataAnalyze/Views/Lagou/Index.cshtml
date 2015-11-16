@@ -13,6 +13,16 @@
 </head>
 <body>
     <div id="main" style="height: 400px; background-color: #ECECEC;"></div>
+    <select id="stPositionName" style="width:100px;height:30px;">
+        <option value="C">C</option>
+        <option value="C++">C++</option>
+        <option value="Java">Java</option>
+        <option value="C#">C#</option>
+        <option value="Javascript">Javascript</option>
+        <option value="PHP">PHP</option>
+    </select>
+
+    <div id="queryPositionName" style="height:400px; background-color:#ECECEC" ></div>
 
     <script type="text/javascript">
 
@@ -25,6 +35,13 @@
         $(function () {
             //柱状图
             bar();
+
+            queryPositionNum("C++");
+
+            $("#stPositionName").change(function () {
+                var selectedval = $(this).find("option:selected").text()
+                queryPositionNum(selectedval);
+            })
 
         });
 
@@ -108,6 +125,87 @@
             $.ajax({
                 url: "/api/LagouData/QueryJCityNeedJobNum",
                 async: false,
+                type: "GET",
+                success: function (data) {
+                    citys = data;
+                }
+            });
+
+            return citys;
+        }
+
+        //城市对某一职位的需求数据
+        function queryPositionNum(pName)
+        {
+            console.log(pName)
+            var result = queryPositionData(pName)
+            console.log(result)
+            citys = JSON.parse(result);
+
+            var cityArray = new Array();
+            var jobNumArray = new Array();
+
+            for (var i = 0; i < citys.length; i++) {
+                cityArray[i] = citys[i].City;
+                jobNumArray[i] = citys[i].JobNum;
+            }
+
+            require(
+                [
+                    'echarts',
+                    'echarts/chart/bar'
+                ],
+                function (ec) {
+                    // 基于准备好的dom，初始化echarts图表
+                    var myChart = ec.init(document.getElementById('queryPositionName'));
+
+                    var option = {
+                        title: {
+                            text: "城市对单一职位的需求数"
+                        },
+                        tooltip: {
+                            show: true
+                        },
+                        legend: {
+                            data: ['岗位需求量']
+                        },
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: cityArray//["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: [
+                            {
+                                name: "岗位需求量",
+                                type: "bar",
+                                data: jobNumArray,
+                                markPoint: {
+                                    data: [{ type: "max", name: "最多" }]
+                                }
+                            },
+                          
+                        ]
+                    };
+
+                    // 为echarts对象加载数据 
+                    myChart.setOption(option);
+                }
+                )
+        }
+
+        function queryPositionData(pName)
+        {
+            var citys;
+            $.ajax({
+                url: "/api/LagouData/QueryPositionNum",
+                async: false,
+                data:{positionName:pName},
                 type: "GET",
                 success: function (data) {
                     citys = data;
