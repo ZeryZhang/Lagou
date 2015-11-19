@@ -138,7 +138,7 @@ namespace Lagou.Repository
             using (var conn = dapperHelper.GetConnection())
             {
                 conn.Open();
-                conn.Query<WorkYearSalaryEntity>(sql).ToList();
+                return  conn.Query<WorkYearSalaryEntity>(sql).ToList();
             }
 
         }
