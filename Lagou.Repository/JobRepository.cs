@@ -122,7 +122,29 @@ namespace Lagou.Repository
             return list;
         }
 
-        // 同一职位不同城市的薪水差异常
+        public List<WorkYearSalaryEntity> QueryWorkYearSalary(string positionName)
+        {
+            string sql = @"SELECT  COUNT(*) [JobNum] ,
+                                City ,
+                                Salary ,
+                                WorkYear
+                        FROM    dbo.Job
+                        WHERE   PositionName = 'java'
+                        GROUP BY City ,
+                                Salary ,
+                                WorkYear
+                        ORDER BY City";
+
+            using (var conn = dapperHelper.GetConnection())
+            {
+                conn.Open();
+                conn.Query<WorkYearSalaryEntity>(sql).ToList();
+            }
+
+        }
+
+
+        // 同一职位不同城市，不同的年限 的薪水差异
 
         //薪水城市年限的差异
 

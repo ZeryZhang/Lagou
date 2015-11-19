@@ -63,6 +63,40 @@ namespace LagouDataAnalyze.Controllers
                 
         }
 
+        public string QuerySalaryWorkYear(string positionName)
+        {
+            var result = repository.QueryWorkYearSalary(positionName);
+
+        }
+
+        /// <summary>
+        /// 划定薪水区间
+        /// </summary>
+        /// <param name="salary"></param>
+        private void getSalaryRange(string salary)
+        {
+            /*
+             *0-5K
+             *6-10K
+             *11-15K
+             *16-20K
+             *21-25K
+             *26-30K
+             *30以上
+             */
+            
+            
+            //6k-10k
+            //(?<s>\d+(?=k-))取前数据
+            //(?<e>(?<=k-)\d+) 取后数据
+
+            //3k以上  
+            //(?<e>\d+(?=\D))取数字
+            //(?<e>\W\D) 取中文 
+
+
+        }
+
 
         // GET api/values/5
         //public string Get(int id)
