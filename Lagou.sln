@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lagou.Repository", "Lagou.R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lagou.Web", "LagouDataAnalyze\Lagou.Web.csproj", "{4672379E-1F43-46DB-89DD-929E71C4C7D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LagouTest", "LagouTest\LagouTest.csproj", "{6A2D07EB-B1AE-4877-96AA-7043977ECF9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{4672379E-1F43-46DB-89DD-929E71C4C7D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4672379E-1F43-46DB-89DD-929E71C4C7D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4672379E-1F43-46DB-89DD-929E71C4C7D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A2D07EB-B1AE-4877-96AA-7043977ECF9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A2D07EB-B1AE-4877-96AA-7043977ECF9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A2D07EB-B1AE-4877-96AA-7043977ECF9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A2D07EB-B1AE-4877-96AA-7043977ECF9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

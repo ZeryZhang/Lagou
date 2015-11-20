@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using Lagou.Repository.Entity;
 using System.Text.RegularExpressions;
 
-namespace LagouDataAnalyze.Controllers
+namespace Lagou.Web.Controllers
 {
 
     public class LagouDataController : ApiController
@@ -61,18 +61,58 @@ namespace LagouDataAnalyze.Controllers
             var jobCount = repository.QueryPositionNum(positionName);
 
             return JsonConvert.SerializeObject(jobCount);
-                
+
         }
 
+        /// <summary>
+        ///各个城市同一职位不同年限的薪水
+        /// </summary>
+        /// <param name="positionName"></param>
+        /// <returns></returns>
+        [HttpGet]
         public string QuerySalaryWorkYear(string positionName)
         {
-            var result = repository.QueryWorkYearSalary(positionName);
+            var results = repository.QueryWorkYearSalary(positionName);
+            var salaryWorkList = new List<WorkYearSalaryEntity>();
+            List<IGrouping<string, WorkYearSalaryEntity>> group = results.GroupBy(o => o.City).ToList();
+            List<string> citys = new List<string>();
+            foreach (var item in group)
+            {
+                string city = item.Key;
+                citys.Add(city);
+            }
+            
+           //遍历城市 
+            foreach (var city in citys)
+            {
+                foreach (var item in results)
+                {
+                    if (item.City.Equals(city))
+                    {
+                        string salary = getSalaryRange(item.Salary);
+                        string workyear = getWorkYear(item.WorkYear);
 
+                        bool isExsit = salaryWorkList.Any(o => o.City == item.City && o.WorkYear == workyear);
+                        if (isExsit)
+                        {//累计同一年限，同一薪资区域的总数
+                            var obj = salaryWorkList.FirstOrDefault(o => o.City == item.City && o.WorkYear == workyear);
+                            obj.JobNum += item.JobNum;
+                        }
+                        else
+                        {//添加
+                            salaryWorkList.Add(new WorkYearSalaryEntity()
+                            {
+                                City = item.City,
+                                JobNum = item.JobNum,
+                                Salary = salary,
+                                WorkYear = workyear
+                            });
+                        }
+                    }
+                }
+            }
 
-
-
-            return string.Empty;
-
+            return JsonConvert.SerializeObject(salaryWorkList);
         }
 
         /// <summary>
@@ -81,7 +121,6 @@ namespace LagouDataAnalyze.Controllers
         /// <param name="salary"></param>
         private string getSalaryRange(string salary)
         {
-
             /*
              *0k-5K
              *6k-10K
@@ -102,7 +141,7 @@ namespace LagouDataAnalyze.Controllers
 
             if (salary.Contains("以上"))
             {
-                 regex = new Regex(@"(?<salary>\d+(?=\D))",RegexOptions.Singleline);
+                regex = new Regex(@"(?<salary>\d+(?=\D))", RegexOptions.Singleline);
                 string salaryValue = regex.Match(salary).Groups["salary"].Value;
                 int value = string.IsNullOrEmpty(salaryValue) ? 0 : Convert.ToInt32(salaryValue);
                 return getRange(value);
@@ -115,16 +154,7 @@ namespace LagouDataAnalyze.Controllers
                 return getRange(value);
             }
 
-
             return string.Empty;
-            //6k-10k
-            //(?<s>\d+(?=k-))取前数据
-            //(?<e>(?<=k-)\d+) 取后数据
-
-            //3k以上  
-            //(?<e>\d+(?=\D))取数字
-            //(?<e>\W\D) 取中文 
-
         }
 
         private string getRange(int salary)
@@ -163,11 +193,32 @@ namespace LagouDataAnalyze.Controllers
             {
                 return "26k-30K";
             }
-            else {
+            else
+            {
                 return "30k以上";
             }
         }
-    
+
+        /// <summary>
+        /// 取工作年限  
+        /// </summary> 
+
+        /// <param name="year">年限1以下 1-3 3-5 5-10 不限</param>
+        /// <returns></returns>
+        private string getWorkYear(string year)
+        {
+            switch (year)
+            {
+                case "应届毕业生":
+                    return "1年以下";
+                case "1年以下":
+                    return "1年以下";
+                    
+                default:
+                    return year;
+            }
+        }
+
 
         // POST api/values
         public void Post([FromBody]string value)

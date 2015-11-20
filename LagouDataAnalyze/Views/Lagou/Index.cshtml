@@ -23,31 +23,33 @@
     </select>
 
     <div id="queryPositionName" style="height:400px; background-color:#ECECEC" ></div>
+    
+    <div id="querySalaryWorkYear" style="height:400px; background-color:#ECECEC"></div>
 
     <script type="text/javascript">
 
-            require.config({
-                paths: {
-                    echarts: "/Scripts/echarts/build/dist"
-                }
-            });
+        require.config({
+            paths: {
+                echarts: "/Scripts/echarts/build/dist"
+            }
+        });
 
-        $(function () {
+        $(function() {
             //柱状图
             bar();
 
             queryPositionNum("C++");
 
-            $("#stPositionName").change(function () {
-                var selectedval = $(this).find("option:selected").text()
+            $("#stPositionName").change(function() {
+                var selectedval = $(this).find("option:selected").text();
                 queryPositionNum(selectedval);
-            })
+            });
 
         });
 
 
         function bar() {
-            
+
             var result = getbarData();
             citys = JSON.parse(result);
 
@@ -66,7 +68,7 @@
                     'echarts',
                     'echarts/chart/bar'//按需加载具体的图表模块
                 ],
-                function (ec) {
+                function(ec) {
                     // 基于准备好的dom，初始化echarts图表
                     var myChart = ec.init(document.getElementById('main'));
 
@@ -97,7 +99,7 @@
                                 type: "bar",
                                 data: jobNumArray,
                                 markPoint: {
-                                    data:[{type:"max",name:"最多"}]
+                                    data: [{ type: "max", name: "最多" }]
                                 }
                             },
                             {
@@ -106,7 +108,7 @@
                                 data: companyArray,
                                 markPoint: {
                                     data: [
-                                            { type: "max", name: "最高数据" }
+                                        { type: "max", name: "最高数据" }
                                     ]
                                 }
                             }
@@ -126,7 +128,7 @@
                 url: "/api/LagouData/QueryJCityNeedJobNum",
                 async: false,
                 type: "GET",
-                success: function (data) {
+                success: function(data) {
                     citys = data;
                 }
             });
@@ -135,11 +137,11 @@
         }
 
         //城市对某一职位的需求数据
-        function queryPositionNum(pName)
-        {
-            console.log(pName)
-            var result = queryPositionData(pName)
-            console.log(result)
+
+        function queryPositionNum(pName) {
+            console.log(pName);
+            var result = queryPositionData(pName);
+            console.log(result);
             citys = JSON.parse(result);
 
             var cityArray = new Array();
@@ -155,7 +157,7 @@
                     'echarts',
                     'echarts/chart/bar'
                 ],
-                function (ec) {
+                function(ec) {
                     // 基于准备好的dom，初始化echarts图表
                     var myChart = ec.init(document.getElementById('queryPositionName'));
 
@@ -188,26 +190,24 @@
                                 markPoint: {
                                     data: [{ type: "max", name: "最多" }]
                                 }
-                            },
-                          
+                            }
                         ]
                     };
 
                     // 为echarts对象加载数据 
                     myChart.setOption(option);
                 }
-                )
+            );
         }
 
-        function queryPositionData(pName)
-        {
+        function queryPositionData(pName) {
             var citys;
             $.ajax({
                 url: "/api/LagouData/QueryPositionNum",
                 async: false,
-                data:{positionName:pName},
+                data: { positionName: pName },
                 type: "GET",
-                success: function (data) {
+                success: function(data) {
                     citys = data;
                 }
             });
@@ -215,6 +215,100 @@
             return citys;
         }
 
+
+        //城市某一职位不同年限薪水比
+        function querySalaryWorkYear() {
+
+            require(
+                [
+                    'echarts',
+                    'echarts/chart/bar'
+                ],
+                function(ec) {
+                    // 基于准备好的dom，初始化echarts图表
+                    var myChart = ec.init(document.getElementById('querySalaryWorkYear'));
+
+                    option = {
+                        title: {
+                            text: '某地区蒸发量和降水量',
+                            subtext: '纯属虚构'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data: ['1年以下', '1-3年', '3-5年', '5-10年', '不限']
+                        },
+                        toolbox: {
+                            show: true
+                        },
+                        calculable: true,
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: ['北京', '上海', '深圳', '广州']
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: [
+                            {
+                                name: '蒸发量',
+                                type: 'bar',
+                                data: [2.0, 4.9, 7.0, 23.2]
+                            },
+                            {
+                                name: '降水量',
+                                type: 'bar',
+                                data: [2.6, 5.9, 9.0, 26.4],
+                            },
+                            {
+                                name: '降水量',
+                                type: 'bar',
+                                data: [2.6, 5.9, 9.0, 26.4]
+                            },
+                            {
+                                name: '降水量',
+                                type: 'bar',
+                                data: [2.6, 5.9, 9.0, 26.4]
+                            },
+                            {
+                                name: '降水量',
+                                type: 'bar',
+                                data: [2.6, 5.9, 9.0, 26.4]
+                            },
+                            {
+                                name: '降水量',
+                                type: 'bar',
+                                data: [2.6, 5.9, 9.0, 26.4]
+                            }
+                        ]
+                    };
+
+                    // 为echarts对象加载数据 
+                    myChart.setOption(option);
+
+                });
+
+        }
+        
+        function querySalaryWorkYearData(pName) {
+            var workYear;
+            $.ajax({
+                url: "/api/LagouData/QueryPositionNum",
+                async: false,
+                data: { positionName: pName },
+                type: "GET",
+                success: function (data) {
+                    workYear = data;
+                }
+            });
+
+            return workYear;
+        }
     </script>
 
    
