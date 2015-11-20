@@ -138,7 +138,7 @@ namespace Lagou.Repository
             using (var conn = dapperHelper.GetConnection())
             {
                 conn.Open();
-                conn.Query<WorkYearSalaryEntity>(sql).ToList();
+                return  conn.Query<WorkYearSalaryEntity>(sql).ToList();
             }
 
         }
@@ -150,7 +150,6 @@ namespace Lagou.Repository
 
         //城市对哪个年限的需求是最大的
 
-        //哪个年限的薪资水平是最高的
 
         //每个年限，每个城市的平均薪水
 
