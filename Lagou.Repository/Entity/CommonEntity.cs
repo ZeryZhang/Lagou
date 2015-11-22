@@ -26,4 +26,17 @@ namespace Lagou.Repository.Entity
         public string WorkYear { get; set; }
     }
 
+    /// <summary>
+    /// 行业薪水 
+    /// </summary>
+    public class IndustrySalarEntity
+    {
+        public int Num { get; set; }
+        /// <summary>
+        /// 行业名称
+        /// </summary>
+        public string Industry { get; set; }
+
+        public string Salary { get; set;}
+    }
 }

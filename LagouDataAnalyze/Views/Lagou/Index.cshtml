@@ -24,7 +24,17 @@
 
     <div id="queryPositionName" style="height:400px; background-color:#ECECEC" ></div>
     
-    <div id="querySalaryWorkYear" style="height:400px; background-color:#ECECEC"></div>
+    <div id="queryWorkYearJobNum" style="height:400px; background-color:#ECECEC"></div>
+
+    <select id="psPositionName" style="width:100px;height:30px;">
+        <option value="C">C</option>
+        <option value="C++">C++</option>
+        <option value="Java">Java</option>
+        <option value="C#">C#</option>
+        <option value="Javascript">Javascript</option>
+        <option value="PHP">PHP</option>
+    </select>
+    <div id="queryPositionNameSalary" style="height:400px; background-color:#ECECEC"></div>
 
     <script type="text/javascript">
 
@@ -41,6 +51,14 @@
             queryPositionNum("C++");
 
             $("#stPositionName").change(function() {
+                var selectedval = $(this).find("option:selected").text();
+                queryPositionNum(selectedval);
+            });
+
+            queryWorkYearJobNum();
+            
+            queryPositionNameSalary("java");
+            $("#psPositionName").change(function () {
                 var selectedval = $(this).find("option:selected").text();
                 queryPositionNum(selectedval);
             });
@@ -139,9 +157,7 @@
         //城市对某一职位的需求数据
 
         function queryPositionNum(pName) {
-            console.log(pName);
             var result = queryPositionData(pName);
-            console.log(result);
             citys = JSON.parse(result);
 
             var cityArray = new Array();
@@ -216,8 +232,12 @@
         }
 
 
-        //城市某一职位不同年限薪水比
-        function querySalaryWorkYear() {
+        //城市不同年限岗位需求数
+        function queryWorkYearJobNum() {
+
+            var workyears = queryWorkYearJobNumData()
+            var workyearObj = JSON.parse(workyears);
+            
 
             require(
                 [
@@ -226,18 +246,18 @@
                 ],
                 function(ec) {
                     // 基于准备好的dom，初始化echarts图表
-                    var myChart = ec.init(document.getElementById('querySalaryWorkYear'));
+                    var myChart = ec.init(document.getElementById('queryWorkYearJobNum'));
 
                     option = {
                         title: {
-                            text: '某地区蒸发量和降水量',
-                            subtext: '纯属虚构'
+                            text: '城市不同年限岗位需求数',
+                            subtext: '数据来源拉勾网'
                         },
                         tooltip: {
                             trigger: 'axis'
                         },
                         legend: {
-                            data: ['1年以下', '1-3年', '3-5年', '5-10年', '不限']
+                            data: ['1年以下', '1-3年', '3-5年', '5-10年','10年以上', '不限']
                         },
                         toolbox: {
                             show: true
@@ -246,7 +266,7 @@
                         xAxis: [
                             {
                                 type: 'category',
-                                data: ['北京', '上海', '深圳', '广州']
+                                data: workyearObj.xdata
                             }
                         ],
                         yAxis: [
@@ -254,38 +274,7 @@
                                 type: 'value'
                             }
                         ],
-                        series: [
-                            {
-                                name: '蒸发量',
-                                type: 'bar',
-                                data: [2.0, 4.9, 7.0, 23.2]
-                            },
-                            {
-                                name: '降水量',
-                                type: 'bar',
-                                data: [2.6, 5.9, 9.0, 26.4],
-                            },
-                            {
-                                name: '降水量',
-                                type: 'bar',
-                                data: [2.6, 5.9, 9.0, 26.4]
-                            },
-                            {
-                                name: '降水量',
-                                type: 'bar',
-                                data: [2.6, 5.9, 9.0, 26.4]
-                            },
-                            {
-                                name: '降水量',
-                                type: 'bar',
-                                data: [2.6, 5.9, 9.0, 26.4]
-                            },
-                            {
-                                name: '降水量',
-                                type: 'bar',
-                                data: [2.6, 5.9, 9.0, 26.4]
-                            }
-                        ]
+                        series: workyearObj.ydata
                     };
 
                     // 为echarts对象加载数据 
@@ -295,12 +284,11 @@
 
         }
         
-        function querySalaryWorkYearData(pName) {
+        function queryWorkYearJobNumData() {
             var workYear;
             $.ajax({
-                url: "/api/LagouData/QueryPositionNum",
+                url: "/api/LagouData/QueryWorkYearJobNum",
                 async: false,
-                data: { positionName: pName },
                 type: "GET",
                 success: function (data) {
                     workYear = data;
@@ -309,6 +297,77 @@
 
             return workYear;
         }
+
+
+        //城市同一职位薪水
+
+        function queryPositionNameSalary(pName)
+        {
+            var salaryJson = queryPositionNameSalaryData(pName)
+            var salary = JSON.parse(salaryJson);
+
+            require(
+               [
+                   'echarts',
+                   'echarts/chart/bar'
+               ],
+               function (ec) {
+                   // 基于准备好的dom，初始化echarts图表
+                   var myChart = ec.init(document.getElementById('queryPositionNameSalary'));
+
+                   option = {
+                       title: {
+                           text: '城市不同年限岗位薪水',
+                           subtext: '数据来源拉勾网'
+                       },
+                       tooltip: {
+                           trigger: 'axis'
+                       },
+                       legend: {
+                            data: ['0k-5K', '6k-10K', '11k-15K', '16k-20K', '21k-25K', '26k-30K','30k以上']
+                       },
+                       toolbox: {
+                           show: true
+                       },
+                       calculable: true,
+                       xAxis: [
+                           {
+                               type: 'category',
+                               data: salary.xdata
+                           }
+                       ],
+                       yAxis: [
+                           {
+                               type: 'value'
+                           }
+                       ],
+                       series: salary.ydata
+                   };
+
+                   // 为echarts对象加载数据 
+                   myChart.setOption(option);
+
+               });
+        }
+
+        function queryPositionNameSalaryData(pName)
+            {
+                var salaryJson;
+                $.ajax({
+                    url: "/api/LagouData/QueryPositionNameSalary",
+                    async: false,
+                    data:{positionName:pName},
+                    type: "GET",
+                    success: function (data) {
+                        salaryJson = data;
+                    }
+                });
+
+                return salaryJson;
+        }
+
+
+
     </script>
 
    

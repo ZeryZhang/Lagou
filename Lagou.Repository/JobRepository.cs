@@ -122,18 +122,25 @@ namespace Lagou.Repository
             return list;
         }
 
-        public List<WorkYearSalaryEntity> QueryWorkYearSalary(string positionName)
+        /// <summary>
+        ///各城市薪水
+        /// </summary>
+        /// <param name="positionName"></param>
+        /// <returns></returns>
+        public List<WorkYearSalaryEntity> QueryPositionNameSalary(string positionName)
         {
-            string sql = @"SELECT  COUNT(*) [JobNum] ,
+
+            string sql = string.Format(@"SELECT  COUNT(*) [JobNum] ,
                                 City ,
-                                Salary ,
-                                WorkYear
+                                Salary
                         FROM    dbo.Job
-                        WHERE   PositionName = 'java'
+                        WHERE   PositionName = '{0}'
                         GROUP BY City ,
-                                Salary ,
-                                WorkYear
-                        ORDER BY City";
+                                Salary
+                        ORDER BY City",positionName);
+
+
+
 
             using (var conn = dapperHelper.GetConnection())
             {
@@ -143,6 +150,62 @@ namespace Lagou.Repository
 
         }
 
+
+        /// <summary>
+        /// 各城市对不同年限段的人数需求
+        /// </summary>
+        /// <param name="positionName"></param>
+        /// <returns></returns>
+        public List<WorkYearSalaryEntity> QueryWorkYearJobNum()
+        {
+            string sql = @"SELECT  COUNT(*) [JobNum] ,
+                                City ,
+                                WorkYear
+                        FROM    dbo.Job
+                        GROUP BY City ,
+                                WorkYear
+                        ORDER BY City";
+
+            using (var conn = dapperHelper.GetConnection())
+            {
+                conn.Open();
+                return conn.Query<WorkYearSalaryEntity>(sql).ToList();
+            }
+        }
+
+
+
+        /// <summary>
+        ///行业薪水分布
+        /// </summary>
+        /// <returns></returns>
+        public List<IndustrySalarEntity> QueryIndustrySalary()
+        {
+
+            string sql = @"select COUNT(*)[Num], IndustryField[Industry] from Job
+                            group by IndustryField
+                            order by Num desc ";
+            using (var conn =dapperHelper.GetConnection())
+            {
+                conn.Open();
+               return  conn.Query<IndustrySalarEntity>(sql).ToList();
+            }
+
+
+        }
+
+        public List<IndustrySalarEntity> QueryIndustrySalary(string industryName)
+        {
+
+            string sql = string.Format(@"select COUNT(*)[Num],Salary from Job  where IndustryField like '%{0}%'    
+  
+                        group by Salary",industryName);
+            using (var conn = dapperHelper.GetConnection())
+            {
+                conn.Open();
+                return conn.Query<IndustrySalarEntity>(sql).ToList();
+            }
+        }
 
         // 同一职位不同城市，不同的年限 的薪水差异
 

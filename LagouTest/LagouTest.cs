@@ -7,11 +7,32 @@ namespace LagouTest
     [TestClass]
     public class LagouTest
     {
+        private LagouDataController controller;
+        public LagouTest()
+        {
+            controller = new LagouDataController();
+        }
+
         [TestMethod]
         public void QuerySalaryWorkYear()
         {
-            LagouDataController controller = new LagouDataController();
-            controller.QuerySalaryWorkYear("java");
+            controller.QueryWorkYearJobNum();
         }
+
+        [TestMethod]
+        public void QueryPositionNameSalary()
+        {
+            controller.QueryPositionNameSalary("java");
+        }
+
+        [TestMethod]
+        public void QueryIndustrySalary()
+        {
+            controller.QueryIndustrySalary();
+        }
+
+        
+
+
     }
 }
