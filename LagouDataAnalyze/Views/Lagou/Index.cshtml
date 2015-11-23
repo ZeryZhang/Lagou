@@ -36,6 +36,27 @@
     </select>
     <div id="queryPositionNameSalary" style="height:400px; background-color:#ECECEC"></div>
 
+
+    <select id="qsPositionName" style="width:100px;height:30px;">
+        <option value="C">C</option>
+        <option value="C++">C++</option>
+        <option value="Java">Java</option>
+        <option value="C#">C#</option>
+        <option value="Javascript">Javascript</option>
+        <option value="PHP">PHP</option>
+    </select>
+    <select id="qscity" style="width:100px;height:30px;">
+        <option value="北京">北京</option>
+        <option value="上海">上海</option>
+        <option value="广州">广州</option>
+        <option value="深圳">深圳</option>
+        <option value="长沙">长沙</option>
+        <option value="西安">西安</option>
+    </select>
+    <div id="queryFinanceStage" style="height:400px; background-color:#ECECEC"></div>
+
+
+    
     <script type="text/javascript">
 
         require.config({
@@ -61,6 +82,15 @@
             $("#psPositionName").change(function () {
                 var selectedval = $(this).find("option:selected").text();
                 queryPositionNum(selectedval);
+            });
+
+
+            queryFinanceStage();
+            $("#qscity").change(function () {
+                var city = $(this).find("option:selected").text();
+                var positionName = $("#qsPositionName").find("option:selected").text();
+
+                queryPositionNum(positionName, city);
             });
 
         });
@@ -367,6 +397,72 @@
         }
 
 
+        //融资阶段薪水分布
+        function queryFinanceStage(positionName,city)
+        {
+            var financeStageJson = queryFinanceStageData(positionName, city)
+            console.log(financeStageJson);
+            financeStageJson = JSON.parse(financeStageJson);
+
+            require(
+               [
+                   'echarts',
+                   'echarts/chart/bar'
+               ],
+               function (ec) {
+                   // 基于准备好的dom，初始化echarts图表
+                   var myChart = ec.init(document.getElementById('queryFinanceStage'));
+
+                   option = {
+                       title: {
+                           text: '融资阶段薪水分布',
+                           subtext: '数据来源拉勾网'
+                       },
+                       tooltip: {
+                           trigger: 'axis'
+                       },
+                       legend: {
+                           data: ['0k-5k', '6k-10k', '11k-15k', '16k-20k', '21k-25k', '26k-30k', '30k以上']
+                       },
+                       toolbox: {
+                           show: true
+                       },
+                       calculable: true,
+                       xAxis: [
+                           {
+                               type: 'category',
+                               data: financeStageJson.xdata
+                           }
+                       ],
+                       yAxis: [
+                           {
+                               type: 'value'
+                           }
+                       ],
+                       series: financeStageJson.ydata
+                   };
+
+                   // 为echarts对象加载数据 
+                   myChart.setOption(option);
+
+               });
+        }
+        
+        function queryFinanceStageData(positionName,city)
+        {
+            var financeStageJson;
+            $.ajax({
+                url: "/api/LagouData/QueryFinanceStage",
+                async: false,
+                data: { positionName: positionName, city: city },
+                type: "GET",
+                success: function (data) {
+                    financeStageJson = data;
+                }
+            });
+
+            return financeStageJson;
+        }
 
     </script>
 

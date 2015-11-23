@@ -432,6 +432,113 @@ namespace Lagou.Web.Controllers
             //return string.Empty;
         }
 
+
+
+
+
+
+
+        /// <summary>
+        /// 不同融资阶段 薪水分布
+        /// </summary>
+        /// <param name="positionName"></param>
+        /// <param name="city"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public string QueryFinanceStage(string positionName="",string city="")
+        {
+            var result = repository.QueryFinanceStage();
+            var financeStages = new List<string>();
+            var FinanceStageSalarys = new List<FinanceStageSalaryEntity>();
+            //遍历融资阶段
+            foreach (var item in result)
+            {
+                financeStages.Add(item.FinanceStage);
+                //取每个阶段岗位的薪水范畴
+                var salarys = repository.QueryFinanceStageSalary(item.FinanceStage,positionName,city);
+                
+                foreach (var salary in salarys)
+                {
+                    var salaryRange = getSalaryRange(salary.Salary);
+                    var salaryObj = FinanceStageSalarys.FirstOrDefault(o => o.FinanceStage == item.FinanceStage && o.Salary == salaryRange);
+                    if (salaryObj != null)
+                    {
+
+                        salaryObj.Num += salary.Num;
+                    }
+                    else
+                    {
+                        FinanceStageSalarys.Add(new FinanceStageSalaryEntity
+                        {
+                            FinanceStage = item.FinanceStage,
+                            Num = salary.Num,
+                            Salary = salaryRange
+                        });
+
+                    }
+                }
+            }
+            //得到如下格式数据
+            /*[{financeStage:'成长型(A轮)',Salary：'10k-15k',Num:230},
+               {financeStage:'成长型(A轮)',Salary：'15k-20k',Num:330}
+            ]*/
+            var jsonResult = new List<WorkYearJobNumModel>();
+
+            var salrayArea = new List<string>()
+            {
+                "0k-5k",
+                "6k-10k",
+                "11k-15k",
+                "16k-20k",
+                "21k-25k",
+                "26k-30k",
+                "30k以上"
+            };
+
+            salrayArea.ForEach(o =>
+            {
+                jsonResult.Add(new WorkYearJobNumModel
+                {
+                    name = o,
+                    type = "bar",
+                    data = new List<int>()
+                });
+            });
+
+            foreach (var item in financeStages)
+            {
+                /*
+                [{name:'0k-5k',type:'bar',data:[10,20,30]/成长型(A轮),成长型(B轮)/}]
+                */
+                foreach (var salary in salrayArea)
+                {
+                    var salaryObj = FinanceStageSalarys.FirstOrDefault(o => o.FinanceStage == item && o.Salary == salary);
+                    if (salaryObj != null)
+                    {
+                        var obj = jsonResult.FirstOrDefault(o => o.name == salary);
+                        obj.data.Add(salaryObj.Num);
+                    }
+                    else
+                    {
+                        var obj = jsonResult.FirstOrDefault(o => o.name == salary);
+                        obj.data.Add(0);
+                    }
+                }
+
+            }
+
+            var json = new
+            {
+                xdata = financeStages,
+                ydata = jsonResult
+            };
+
+            return JsonConvert.SerializeObject(json);
+
+
+
+        }
+
         /// <summary>
         /// 划定薪水区间
         /// </summary>
@@ -496,19 +603,23 @@ namespace Lagou.Web.Controllers
             }
             else if (salary > 5 && salary <= 10)
             {
-                return "6k-10K";
+                return "6k-10k";
             }
             else if (salary > 10 && salary <= 15)
             {
-                return "11k-15K";
+                return "11k-15k";
             }
             else if (salary > 15 && salary <= 20)
             {
-                return "16k-20K";
+                return "16k-20k";
             }
             else if (salary > 20 && salary <= 25)
             {
-                return "26k-30K";
+                return "21k-25k";
+            }
+            else if (salary > 25 && salary <= 30)
+            {
+                return "26k-30k";
             }
             else
             {

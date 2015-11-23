@@ -207,6 +207,35 @@ namespace Lagou.Repository
             }
         }
 
+        /// <summary>
+        ///公司融资阶段
+        /// </summary>
+        /// <returns></returns>
+        public List<FinanceStageEntity> QueryFinanceStage()
+        {
+            string sql = @"select COUNT(*)[Num],FinanceStage from Job 
+                            group by FinanceStage order by Num desc";
+
+            using (var conn = dapperHelper.GetConnection())
+            {
+                conn.Open();
+                return conn.Query<FinanceStageEntity>(sql).ToList();
+            }
+        }
+
+        public List<FinanceStageSalaryEntity> QueryFinanceStageSalary(string financeStage,string positionName="",string city ="")
+        {
+            string sql = string.Format(@"select COUNT(*)[Num],Salary from Job 
+                        where FinanceStage='{0}' {1} {2}
+                        group by Salary",financeStage,positionName,city);
+            using (var conn = dapperHelper.GetConnection())
+            {
+                conn.Open();
+                return conn.Query<FinanceStageSalaryEntity>(sql).ToList();
+
+            }
+        }
+
         // 同一职位不同城市，不同的年限 的薪水差异
 
         //薪水城市年限的差异

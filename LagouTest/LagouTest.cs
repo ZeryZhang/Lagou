@@ -31,7 +31,13 @@ namespace LagouTest
             controller.QueryIndustrySalary();
         }
 
-        
+        [TestMethod]
+        public void QueryFinanceStage()
+        {
+            controller.QueryFinanceStage();
+        }
+
+
 
 
     }
