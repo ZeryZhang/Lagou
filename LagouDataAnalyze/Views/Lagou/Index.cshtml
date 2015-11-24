@@ -22,8 +22,8 @@
         <option value="PHP">PHP</option>
     </select>
 
-    <div id="queryPositionName" style="height:400px; background-color:#ECECEC" ></div>
-    
+    <div id="queryPositionName" style="height:400px; background-color:#ECECEC"></div>
+
     <div id="queryWorkYearJobNum" style="height:400px; background-color:#ECECEC"></div>
 
     <select id="psPositionName" style="width:100px;height:30px;">
@@ -35,9 +35,28 @@
         <option value="PHP">PHP</option>
     </select>
     <div id="queryPositionNameSalary" style="height:400px; background-color:#ECECEC"></div>
-    
-    <div id="queryIndustrySalary" style="height:400px; background-color:#ECECEC"></div>
-    
+
+
+    <select id="qsPositionName" style="width:100px;height:30px;">
+        <option value="C">C</option>
+        <option value="C++">C++</option>
+        <option value="Java">Java</option>
+        <option value="C#">C#</option>
+        <option value="Javascript">Javascript</option>
+        <option value="PHP">PHP</option>
+    </select>
+    <select id="qscity" style="width:100px;height:30px;">
+        <option value="北京">北京</option>
+        <option value="上海">上海</option>
+        <option value="广州">广州</option>
+        <option value="深圳">深圳</option>
+        <option value="长沙">长沙</option>
+        <option value="西安">西安</option>
+    </select>
+    <div id="queryFinanceStage" style="height:400px; background-color:#ECECEC"></div>
+
+
+
     <script type="text/javascript">
 
         require.config({
@@ -65,7 +84,14 @@
                 queryPositionNum(selectedval);
             });
 
-            queryIndustrySalary();
+
+            queryFinanceStage();
+            $("#qscity").change(function () {
+                var city = $(this).find("option:selected").text();
+                var positionName = $("#qsPositionName").find("option:selected").text();
+
+                queryPositionNum(positionName, city);
+            });
 
         });
 
@@ -137,7 +163,7 @@
                         ]
                     };
 
-                    // 为echarts对象加载数据 
+                    // 为echarts对象加载数据
                     myChart.setOption(option);
                 }
             );
@@ -214,7 +240,7 @@
                         ]
                     };
 
-                    // 为echarts对象加载数据 
+                    // 为echarts对象加载数据
                     myChart.setOption(option);
                 }
             );
@@ -240,7 +266,7 @@
 
         function queryWorkYearJobNum() {
 
-            var workyears = queryWorkYearJobNumData()
+            var workyears = queryWorkYearJobNumData();
             var workyearObj = JSON.parse(workyears);
 
 
@@ -282,7 +308,7 @@
                         series: workyearObj.ydata
                     };
 
-                    // 为echarts对象加载数据 
+                    // 为echarts对象加载数据
                     myChart.setOption(option);
 
                 });
@@ -311,10 +337,10 @@
             var salary = JSON.parse(salaryJson);
 
             require(
-                [
-                    'echarts',
-                    'echarts/chart/bar'
-                ],
+               [
+                   'echarts',
+                   'echarts/chart/bar'
+               ],
                 function(ec) {
                     // 基于准备好的dom，初始化echarts图表
                     var myChart = ec.init(document.getElementById('queryPositionNameSalary'));
@@ -348,7 +374,7 @@
                         series: salary.ydata
                     };
 
-                    // 为echarts对象加载数据 
+                    // 为echarts对象加载数据
                     myChart.setOption(option);
 
                 });
@@ -381,7 +407,7 @@
                     'echarts',
                     'echarts/chart/bar'
                 ],
-                function (ec) {
+                function(ec) {
                     // 基于准备好的dom，初始化echarts图表
                     var myChart = ec.init(document.getElementById('queryIndustrySalary'));
 
@@ -413,29 +439,87 @@
                         ],
                         series: salary.ydata
                     };
+                }
+            );
+        }
 
-                    // 为echarts对象加载数据 
+
+
+
+
+        //融资阶段薪水分布
+
+        function queryFinanceStage(positionName, city) {
+            var financeStageJson = queryFinanceStageData(positionName, city)
+            console.log(financeStageJson);
+            financeStageJson = JSON.parse(financeStageJson);
+
+            require(
+                [
+                    'echarts',
+                    'echarts/chart/bar'
+                ],
+                function(ec) {
+                    // 基于准备好的dom，初始化echarts图表
+                    var myChart = ec.init(document.getElementById('queryFinanceStage'));
+
+                    option = {
+                        title: {
+                            text: '融资阶段薪水分布',
+                            subtext: '数据来源拉勾网'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data: ['0k-5k', '6k-10k', '11k-15k', '16k-20k', '21k-25k', '26k-30k', '30k以上']
+                        },
+                        toolbox: {
+                            show: true
+                        },
+                        calculable: true,
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: financeStageJson.xdata
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: financeStageJson.ydata
+                    };
+
+                    // 为echarts对象加载数据
                     myChart.setOption(option);
 
                 });
         }
 
-        function queryIndustrySalaryData() {
-            var industrySalaryJson;
+        function queryFinanceStageData(positionName, city) {
+            var financeStageJson;
             $.ajax({
-                url: "/api/LagouData/QueryIndustrySalary",
+                url: "/api/LagouData/QueryFinanceStage",
                 async: false,
+                data: { positionName: positionName, city: city },
                 type: "GET",
-                success: function (data) {
-                    industrySalaryJson = data;
+                success: function(data) {
+                    financeStageJson = data;
                 }
             });
 
-            return industrySalaryJson;
+            return financeStageJson;
         }
+
+        
+
+        
+        
 
     </script>
 
-   
+
 </body>
 </html>
