@@ -643,7 +643,7 @@ namespace Lagou.Web.Controllers
                 return "30k以上";
             }
         }
-
+           
         /// <summary>
         /// 取工作年限  
         /// </summary> 
