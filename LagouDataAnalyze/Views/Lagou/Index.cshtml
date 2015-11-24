@@ -35,7 +35,9 @@
         <option value="PHP">PHP</option>
     </select>
     <div id="queryPositionNameSalary" style="height:400px; background-color:#ECECEC"></div>
-
+    
+    <div id="queryIndustrySalary" style="height:400px; background-color:#ECECEC"></div>
+    
     <script type="text/javascript">
 
         require.config({
@@ -56,12 +58,14 @@
             });
 
             queryWorkYearJobNum();
-            
+
             queryPositionNameSalary("java");
-            $("#psPositionName").change(function () {
+            $("#psPositionName").change(function() {
                 var selectedval = $(this).find("option:selected").text();
                 queryPositionNum(selectedval);
             });
+
+            queryIndustrySalary();
 
         });
 
@@ -233,11 +237,12 @@
 
 
         //城市不同年限岗位需求数
+
         function queryWorkYearJobNum() {
 
             var workyears = queryWorkYearJobNumData()
             var workyearObj = JSON.parse(workyears);
-            
+
 
             require(
                 [
@@ -257,7 +262,7 @@
                             trigger: 'axis'
                         },
                         legend: {
-                            data: ['1年以下', '1-3年', '3-5年', '5-10年','10年以上', '不限']
+                            data: ['1年以下', '1-3年', '3-5年', '5-10年', '10年以上', '不限']
                         },
                         toolbox: {
                             show: true
@@ -283,14 +288,14 @@
                 });
 
         }
-        
+
         function queryWorkYearJobNumData() {
             var workYear;
             $.ajax({
                 url: "/api/LagouData/QueryWorkYearJobNum",
                 async: false,
                 type: "GET",
-                success: function (data) {
+                success: function(data) {
                     workYear = data;
                 }
             });
@@ -301,72 +306,133 @@
 
         //城市同一职位薪水
 
-        function queryPositionNameSalary(pName)
-        {
-            var salaryJson = queryPositionNameSalaryData(pName)
+        function queryPositionNameSalary(pName) {
+            var salaryJson = queryPositionNameSalaryData(pName);
             var salary = JSON.parse(salaryJson);
 
             require(
-               [
-                   'echarts',
-                   'echarts/chart/bar'
-               ],
-               function (ec) {
-                   // 基于准备好的dom，初始化echarts图表
-                   var myChart = ec.init(document.getElementById('queryPositionNameSalary'));
+                [
+                    'echarts',
+                    'echarts/chart/bar'
+                ],
+                function(ec) {
+                    // 基于准备好的dom，初始化echarts图表
+                    var myChart = ec.init(document.getElementById('queryPositionNameSalary'));
 
-                   option = {
-                       title: {
-                           text: '城市不同年限岗位薪水',
-                           subtext: '数据来源拉勾网'
-                       },
-                       tooltip: {
-                           trigger: 'axis'
-                       },
-                       legend: {
-                            data: ['0k-5K', '6k-10K', '11k-15K', '16k-20K', '21k-25K', '26k-30K','30k以上']
-                       },
-                       toolbox: {
-                           show: true
-                       },
-                       calculable: true,
-                       xAxis: [
-                           {
-                               type: 'category',
-                               data: salary.xdata
-                           }
-                       ],
-                       yAxis: [
-                           {
-                               type: 'value'
-                           }
-                       ],
-                       series: salary.ydata
-                   };
+                    option = {
+                        title: {
+                            text: '城市不同年限岗位薪水',
+                            subtext: '数据来源拉勾网'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data: ['0k-5k', '6k-10k', '11k-15k', '16k-20k', '21k-25k', '26k-30k', '30k以上']
+                        },
+                        toolbox: {
+                            show: true
+                        },
+                        calculable: true,
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: salary.xdata
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: salary.ydata
+                    };
 
-                   // 为echarts对象加载数据 
-                   myChart.setOption(option);
+                    // 为echarts对象加载数据 
+                    myChart.setOption(option);
 
-               });
-        }
-
-        function queryPositionNameSalaryData(pName)
-            {
-                var salaryJson;
-                $.ajax({
-                    url: "/api/LagouData/QueryPositionNameSalary",
-                    async: false,
-                    data:{positionName:pName},
-                    type: "GET",
-                    success: function (data) {
-                        salaryJson = data;
-                    }
                 });
-
-                return salaryJson;
         }
 
+        function queryPositionNameSalaryData(pName) {
+            var salaryJson;
+            $.ajax({
+                url: "/api/LagouData/QueryPositionNameSalary",
+                async: false,
+                data: { positionName: pName },
+                type: "GET",
+                success: function(data) {
+                    salaryJson = data;
+                }
+            });
 
+            return salaryJson;
+        }
+
+        //行业薪水分布
+
+        function queryIndustrySalary() {
+
+            var salaryJson = queryIndustrySalaryData();
+            var salary = JSON.parse(salaryJson);
+
+            require(
+                [
+                    'echarts',
+                    'echarts/chart/bar'
+                ],
+                function (ec) {
+                    // 基于准备好的dom，初始化echarts图表
+                    var myChart = ec.init(document.getElementById('queryIndustrySalary'));
+
+                    option = {
+                        title: {
+                            text: '行业薪水分布',
+                            subtext: '数据来源拉勾网'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data: ['0k-5k', '6k-10k', '11k-15k', '16k-20k', '21k-25k', '26k-30k', '30k以上']
+                        },
+                        toolbox: {
+                            show: true
+                        },
+                        calculable: true,
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: salary.xdata
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: salary.ydata
+                    };
+
+                    // 为echarts对象加载数据 
+                    myChart.setOption(option);
+
+                });
+        }
+
+        function queryIndustrySalaryData() {
+            var industrySalaryJson;
+            $.ajax({
+                url: "/api/LagouData/QueryIndustrySalary",
+                async: false,
+                type: "GET",
+                success: function (data) {
+                    industrySalaryJson = data;
+                }
+            });
+
+            return industrySalaryJson;
+        }
 
     </script>
 

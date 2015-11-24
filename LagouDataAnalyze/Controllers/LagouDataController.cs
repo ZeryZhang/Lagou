@@ -131,29 +131,46 @@ namespace Lagou.Web.Controllers
 
             foreach (var city in citys)
             {
-                var workyear1 = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "1年以下");
-                var year1 = jsonResult.FirstOrDefault(o => o.name == "1年以下");
-                year1.data.Add(workyear1.JobNum);
 
-                var workyear3 = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "1-3年");
-                var year3 = jsonResult.FirstOrDefault(o => o.name == "1-3年");
-                year3.data.Add(workyear3.JobNum);
+                foreach (var workyear in workyears)
+                {
+                    var obj = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == workyear);
+                    if (obj != null)
+                    {
+                        var year = jsonResult.FirstOrDefault(o => o.name == workyear);
+                        if (year != null)
+                        {
+                            year.data.Add(obj.JobNum);
+                        }
+                        else
+                        {
+                            year.data.Add(0);
+                        }
+                    }
+                }
+                //var workyear1 = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "1年以下");
+                //var year1 = jsonResult.FirstOrDefault(o => o.name == "1年以下");
+                //year1.data.Add(workyear1.JobNum);
 
-                var workyear5 = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "3-5年");
-                var year5 = jsonResult.FirstOrDefault(o => o.name == "3-5年");
-                year5.data.Add(workyear5.JobNum);
+                //var workyear3 = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "1-3年");
+                //var year3 = jsonResult.FirstOrDefault(o => o.name == "1-3年");
+                //year3.data.Add(workyear3.JobNum);
 
-                var workyear10 = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "5-10年");
-                var year10 = jsonResult.FirstOrDefault(o => o.name == "5-10年");
-                year10.data.Add(workyear10.JobNum);
+                //var workyear5 = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "3-5年");
+                //var year5 = jsonResult.FirstOrDefault(o => o.name == "3-5年");
+                //year5.data.Add(workyear5.JobNum);
 
-                var workyear10up = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "10年以上");
-                var year10up = jsonResult.FirstOrDefault(o => o.name == "10年以上");
-                year10up.data.Add(workyear10up.JobNum);
+                //var workyear10 = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "5-10年");
+                //var year10 = jsonResult.FirstOrDefault(o => o.name == "5-10年");
+                //year10.data.Add(workyear10.JobNum);
 
-                var workyearno = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "不限");
-                var yearno = jsonResult.FirstOrDefault(o => o.name == "不限");
-                yearno.data.Add(workyearno.JobNum);
+                //var workyear10up = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "10年以上");
+                //var year10up = jsonResult.FirstOrDefault(o => o.name == "10年以上");
+                //year10up.data.Add(workyear10up.JobNum);
+
+                //var workyearno = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "不限");
+                //var yearno = jsonResult.FirstOrDefault(o => o.name == "不限");
+                //yearno.data.Add(workyearno.JobNum);
 
 
             }
@@ -496,19 +513,23 @@ namespace Lagou.Web.Controllers
             }
             else if (salary > 5 && salary <= 10)
             {
-                return "6k-10K";
+                return "6k-10k";
             }
             else if (salary > 10 && salary <= 15)
             {
-                return "11k-15K";
+                return "11k-15k";
             }
             else if (salary > 15 && salary <= 20)
             {
-                return "16k-20K";
+                return "16k-20k";
             }
             else if (salary > 20 && salary <= 25)
             {
-                return "26k-30K";
+                return "21k-25k";
+            }
+            else if (salary > 20 && salary <= 25)
+            {
+                return "26k-30k";
             }
             else
             {
