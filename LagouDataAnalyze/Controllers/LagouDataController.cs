@@ -451,10 +451,6 @@ namespace Lagou.Web.Controllers
 
 
 
-
-
-
-
         /// <summary>
         /// 不同融资阶段 薪水分布
         /// </summary>
@@ -628,7 +624,7 @@ namespace Lagou.Web.Controllers
             }
             else if (salary > 15 && salary <= 20)
             {
-                return "16k-20K";
+                return "16k-20k";
             }
             else if (salary > 20 && salary <= 25)
             {
