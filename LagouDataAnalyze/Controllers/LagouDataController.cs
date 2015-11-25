@@ -148,30 +148,6 @@ namespace Lagou.Web.Controllers
                         }
                     }
                 }
-                //var workyear1 = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "1年以下");
-                //var year1 = jsonResult.FirstOrDefault(o => o.name == "1年以下");
-                //year1.data.Add(workyear1.JobNum);
-
-                //var workyear3 = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "1-3年");
-                //var year3 = jsonResult.FirstOrDefault(o => o.name == "1-3年");
-                //year3.data.Add(workyear3.JobNum);
-
-                //var workyear5 = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "3-5年");
-                //var year5 = jsonResult.FirstOrDefault(o => o.name == "3-5年");
-                //year5.data.Add(workyear5.JobNum);
-
-                //var workyear10 = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "5-10年");
-                //var year10 = jsonResult.FirstOrDefault(o => o.name == "5-10年");
-                //year10.data.Add(workyear10.JobNum);
-
-                //var workyear10up = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "10年以上");
-                //var year10up = jsonResult.FirstOrDefault(o => o.name == "10年以上");
-                //year10up.data.Add(workyear10up.JobNum);
-
-                //var workyearno = workYearList.FirstOrDefault(o => o.City == city && o.WorkYear == "不限");
-                //var yearno = jsonResult.FirstOrDefault(o => o.name == "不限");
-                //yearno.data.Add(workyearno.JobNum);
-
 
             }
 
@@ -549,6 +525,90 @@ namespace Lagou.Web.Controllers
             return JsonConvert.SerializeObject(json);
 
 
+
+        }
+
+        /// <summary>
+        /// 不同融资阶段对各年限人才的需求
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public string QueryFinanceStageWorkYear()
+        {
+            var result = repository.QueryFinanceStageWorkYear();
+            List<IGrouping<string,FinanceStageWorkYearEntity>> financeGroup =  result.GroupBy(o => o.FinanceStage).ToList();
+            List<string> financeStages = new List<string>();
+            var financeStageWorkYeaers = new List<FinanceStageWorkYearEntity>();
+            //取融资阶段
+            financeGroup.ForEach(o => { financeStages.Add(o.Key); });
+
+            foreach (var finance in financeStages)
+            {
+                foreach (var item in result)
+                {
+                    var workyear = getWorkYear(item.WorkYear);
+                    var financeObj = financeStageWorkYeaers.FirstOrDefault(o => o.FinanceStage.Equals(item.FinanceStage)&&o.WorkYear.Equals(workyear));
+
+                    if (financeObj != null)
+                    {
+                        financeObj.Num += item.Num;
+                    }
+                    else {
+                        financeStageWorkYeaers.Add(new FinanceStageWorkYearEntity
+                        {
+                            FinanceStage = finance,
+                            Num = item.Num,
+                            WorkYear = workyear
+                        });
+                    }
+                }
+            }
+            var jsonResult = new List<WorkYearJobNumModel>();
+
+            var workyears = new List<string> {
+                "1年以下",
+                "1-3年",
+                "3-5年",
+                "5-10年",
+                "10年以上",
+                "不限"
+            };
+            workyears.ForEach(o => {
+                jsonResult.Add(new WorkYearJobNumModel
+                {
+                    name = o,
+                    type = "bar",
+                    data = new List<int>()
+                });
+            });
+
+
+            foreach (var finance in financeStages)
+            {
+                foreach (var workyear in workyears)
+                {
+                    var financeObj = financeStageWorkYeaers.FirstOrDefault(o => o.FinanceStage.Equals(finance) && o.WorkYear.Equals(workyear));
+
+                    if (financeObj != null)
+                    {
+                        var obj = jsonResult.FirstOrDefault(o => o.name == workyear);
+                        obj.data.Add(financeObj.Num);
+                    }
+                    else
+                    {
+                        var obj = jsonResult.FirstOrDefault(o => o.name == workyear);
+                        obj.data.Add(0);
+                    }
+                }
+            }
+
+            var json = new
+            {
+                xdata = financeStages,
+                ydata = jsonResult
+            };
+
+            return JsonConvert.SerializeObject(json);
 
         }
 

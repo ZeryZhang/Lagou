@@ -55,7 +55,8 @@
     </select>
     <div id="queryFinanceStage" style="height:400px; background-color:#ECECEC"></div>
 
-
+    <div id="queryFinanceStageWorkYear" style="height:400px; background-color:#ECECEC"></div>
+    
 
     <script type="text/javascript">
 
@@ -87,12 +88,14 @@
 
             queryFinanceStage();
             $("#qscity").change(function () {
-                var city = $(this).find("option:selected").text();
-                var positionName = $("#qsPositionName").find("option:selected").text();
+                var city = $(this).find("option:selected").val();
+                var positionName = $("#qsPositionName").find("option:selected").val();
 
-                queryPositionNum(positionName, city);
+                queryFinanceStage(positionName, city);
             });
 
+
+            queryFinanceStageWorkYear();
         });
 
 
@@ -451,7 +454,7 @@
 
         function queryFinanceStage(positionName, city) {
             var financeStageJson = queryFinanceStageData(positionName, city)
-            console.log(financeStageJson);
+           
             financeStageJson = JSON.parse(financeStageJson);
 
             require(
@@ -513,10 +516,72 @@
             return financeStageJson;
         }
 
-        
+        //融资阶段各年限人才需求
 
-        
-        
+        function queryFinanceStageWorkYear()
+        {
+            var financeStageJson = queryFinanceStageWorkYearData()
+
+            financeStageJson = JSON.parse(financeStageJson);
+
+            require(
+                [
+                    'echarts',
+                    'echarts/chart/bar'
+                ],
+                function (ec) {
+                    // 基于准备好的dom，初始化echarts图表
+                    var myChart = ec.init(document.getElementById('queryFinanceStageWorkYear'));
+
+                    option = {
+                        title: {
+                            text: '融资阶段不同年限人才需求',
+                            subtext: '数据来源拉勾网'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data: ['1年以下', '1-3年', '3-5年', '5-10年', '10年以上', '不限']
+                        },
+                        toolbox: {
+                            show: true
+                        },
+                        calculable: true,
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: financeStageJson.xdata
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value'
+                            }
+                        ],
+                        series: financeStageJson.ydata
+                    };
+
+                    // 为echarts对象加载数据
+                    myChart.setOption(option);
+
+                });
+        }
+
+        function queryFinanceStageWorkYearData()
+        {
+            var financeStageJson;
+            $.ajax({
+                url: "/api/LagouData/QueryFinanceStageWorkYear",
+                async: false,
+                type: "GET",
+                success: function (data) {
+                    financeStageJson = data;
+                }
+            });
+
+            return financeStageJson;
+        }
 
     </script>
 

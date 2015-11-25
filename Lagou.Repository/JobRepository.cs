@@ -225,9 +225,16 @@ namespace Lagou.Repository
 
         public List<FinanceStageSalaryEntity> QueryFinanceStageSalary(string financeStage,string positionName="",string city ="")
         {
+            //TODO:防SQL注入
+            string condition = string.Empty;
+            if (!string.IsNullOrEmpty(positionName) && !string.IsNullOrEmpty(city))
+            {
+                condition = string.Format(" AND PositionName='{0}' AND City='{1}'", positionName, city);
+
+            }
             string sql = string.Format(@"select COUNT(*)[Num],Salary from Job 
-                        where FinanceStage='{0}' {1} {2}
-                        group by Salary",financeStage,positionName,city);
+                        where FinanceStage='{0}' {1} 
+                        group by Salary",financeStage, condition);
             using (var conn = dapperHelper.GetConnection())
             {
                 conn.Open();
@@ -235,6 +242,26 @@ namespace Lagou.Repository
 
             }
         }
+
+        /// <summary>
+        /// 不同融资阶段 对不同年限人才的需求
+        /// </summary>
+        /// <returns></returns>
+        public List<FinanceStageWorkYearEntity> QueryFinanceStageWorkYear()
+        {
+            string sql = @"select COUNT(*)[Num],FinanceStage,WorkYear from Job
+                            group by FinanceStage, WorkYear
+                              order by FinanceStage";
+
+            using (var conn = dapperHelper.GetConnection())
+            {
+                conn.Open();
+                return conn.Query<FinanceStageWorkYearEntity>(sql).ToList();
+            }
+
+        }
+
+
 
         // 同一职位不同城市，不同的年限 的薪水差异
 

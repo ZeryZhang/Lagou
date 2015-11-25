@@ -59,5 +59,16 @@ namespace Lagou.Repository.Entity
         public int Num { get; set; }
 
         public string Salary { get; set; }
+
+    }
+
+    public class FinanceStageWorkYearEntity
+    {
+        public string FinanceStage { get; set; }
+
+        public int Num { get; set; }
+
+        public string WorkYear { get; set; }
+
     }
 }
