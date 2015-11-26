@@ -24,6 +24,8 @@ namespace Lagou
         static void Main(string[] args)
         {
 
+           // redisQueue.Enqueue("Job", "zery");
+
             //爬取数据
             Thread getJobThread = new Thread(new ThreadStart(SaveToRedisQueue));
             getJobThread.IsBackground = true;
@@ -70,7 +72,6 @@ namespace Lagou
             HttpUtility httpUtility = new HttpUtility();
             JobUtility jobUtility = new JobUtility();
             string html = string.Empty;
-            string url = string.Empty;
 
             //jobType
             html = httpUtility.SendGetHttpRequest("http://www.lagou.com/");

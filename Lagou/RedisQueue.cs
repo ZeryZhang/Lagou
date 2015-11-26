@@ -23,10 +23,33 @@ namespace Lagou
             };
            // options.EndPoints.Add("127.0.0.1", 6379);
             _connectionMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1,6379");
-            _db = _connectionMultiplexer.GetDatabase(0);
+            _db = _connectionMultiplexer.GetDatabase();
         }
 
-       
+        public static ConnectionMultiplexer connection;
+        public static ConnectionMultiplexer Connection
+        {
+            get
+            {
+
+                if (connection == null ||!connection.IsConnected)
+                {
+                    connection =  ConnectionMultiplexer.Connect("127.0.0.1,6379");
+                }
+                return connection;
+            }
+        }
+
+        private static IDatabase cache
+        {
+            get
+            {
+                return Connection.GetDatabase();
+            }
+
+        }
+
+
 
         /// <summary>
         /// Push
@@ -44,6 +67,7 @@ namespace Lagou
                 {
                     RedisValue redisValue = JsonConvert.SerializeObject(value);
                     result = _db.ListLeftPush(equeueName, redisValue) > 0;
+                   
                 }
             }
 

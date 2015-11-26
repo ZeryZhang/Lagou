@@ -168,6 +168,7 @@ namespace Lagou
             var jobList = new List<JobModel>();
             HttpUtility httpUtilty = new HttpUtility();
             RedisQueue redisQueue = new RedisQueue();
+            
             try
             {
                 foreach (var city in citys)
@@ -177,7 +178,7 @@ namespace Lagou
                     {
                         for (int i = 1; i <= 30; i++)
                         {
-                            Thread.Sleep(2000);
+                            Thread.Sleep(2500);
                             Console.WriteLine("当前城市{0}职位{1},第{2}页数据", city.CityName, jobType.JobName, i);
                             postData = string.Format("first=false&pn={0}&kd={1}", i, jobType.JobName);
 
@@ -198,8 +199,6 @@ namespace Lagou
 
                             }
                         }
-
-
                     }
 
                 }
