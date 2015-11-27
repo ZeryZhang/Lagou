@@ -178,7 +178,7 @@ namespace Lagou
                     {
                         for (int i = 1; i <= 30; i++)
                         {
-                            Thread.Sleep(2500);
+                            Thread.Sleep(4000);
                             Console.WriteLine("当前城市{0}职位{1},第{2}页数据", city.CityName, jobType.JobName, i);
                             postData = string.Format("first=false&pn={0}&kd={1}", i, jobType.JobName);
 
@@ -188,6 +188,7 @@ namespace Lagou
                             if (jobdata.content.result == null || !jobdata.content.result.Any())
                             {
                                 redisQueue.Enqueue("Job", jobList);
+                                jobList = new List<JobModel>();
                                 Console.WriteLine("==========={0}查询完成,共{1}页数据=========", jobType.JobName, i);
                                 break;
                             }
