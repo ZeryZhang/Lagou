@@ -188,6 +188,7 @@ namespace Lagou
                             if (jobdata.content.result == null || !jobdata.content.result.Any())
                             {
                                 redisQueue.Enqueue("Job", jobList);
+                                jobList = new List<JobModel>();
                                 Console.WriteLine("==========={0}查询完成,共{1}页数据=========", jobType.JobName, i);
                                 break;
                             }

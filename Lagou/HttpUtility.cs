@@ -64,7 +64,7 @@ namespace Lagou
                 request.Headers.Add("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3");
                 request.ContentType = "application/x-www-form-urlencoded; charset=UTF-8"; //表单提交
                 //request.Host = "www.cnblogs.com";
-                request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; rv:25.0) Gecko/20100101 Firefox/25.0";
+                request.UserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)";
                 byte[] bytes = Encoding.UTF8.GetBytes(body);
                 request.ContentLength = bytes.Length;
                 request.GetRequestStream().Write(bytes, 0, bytes.Length);
@@ -74,6 +74,7 @@ namespace Lagou
                 {
                     StreamReader reader = new StreamReader(responseStream, Encoding.UTF8);
                     html = reader.ReadToEnd();
+                    response = null;
                 }
             }
             catch (Exception ex)

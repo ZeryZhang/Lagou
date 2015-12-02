@@ -19,20 +19,23 @@ namespace Lagou
     class Program
     {
         private static Timer timer;
-        private static RedisQueue redisQueue = new RedisQueue();
+        private static RedisQueue redisQueue = null;
 
         static void Main(string[] args)
         {
-
-           // redisQueue.Enqueue("Job", "zery");
-
-            //爬取数据
-            Thread getJobThread = new Thread(new ThreadStart(SaveToRedisQueue));
-            getJobThread.IsBackground = true;
-            getJobThread.Start();
-
+            redisQueue = new RedisQueue();
             //定时器扫描Redis队列数据 存入数据库中
             InitThreadTimer();
+            // redisQueue.Enqueue("Job", "zery");
+
+            SaveToRedisQueue();
+
+            //爬取数据
+            //Thread getJobThread = new Thread(new ThreadStart(SaveToRedisQueue));
+            //getJobThread.IsBackground = true;
+            //getJobThread.Start();
+
+           
 
             Console.Read();
         }
