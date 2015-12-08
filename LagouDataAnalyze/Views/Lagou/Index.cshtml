@@ -37,6 +37,8 @@
     <div id="queryPositionNameSalary" style="height:400px; background-color:#ECECEC"></div>
 
 
+    <div id="queryIndustrySalary" style="height:400px; background-color:#ECECEC"></div>
+
     <select id="qsPositionName" style="width:100px;height:30px;">
         <option value="C">C</option>
         <option value="C++">C++</option>
@@ -53,10 +55,17 @@
         <option value="长沙">长沙</option>
         <option value="西安">西安</option>
     </select>
+    
+
     <div id="queryFinanceStage" style="height:400px; background-color:#ECECEC"></div>
 
     <div id="queryFinanceStageWorkYear" style="height:400px; background-color:#ECECEC"></div>
     
+    <style>
+        body > div {
+         margin-bottom:200px;
+        }
+    </style>
 
     <script type="text/javascript">
 
@@ -67,25 +76,30 @@
         });
 
         $(function() {
-            //柱状图
-            bar();
+            //城市所有职位的总需求数
+            queryPositionAllNum();
 
+            //城市对某一职位的需求数据
             queryPositionNum("C++");
 
             $("#stPositionName").change(function() {
                 var selectedval = $(this).find("option:selected").text();
                 queryPositionNum(selectedval);
             });
-
+            //城市不同年限岗位需求数
             queryWorkYearJobNum();
 
+            //城市不同年限岗位薪水
             queryPositionNameSalary("java");
             $("#psPositionName").change(function() {
                 var selectedval = $(this).find("option:selected").text();
                 queryPositionNum(selectedval);
             });
 
+            //行业薪水分布
+            queryIndustrySalary()
 
+            //融资阶段薪水分布
             queryFinanceStage();
             $("#qscity").change(function () {
                 var city = $(this).find("option:selected").val();
@@ -94,12 +108,12 @@
                 queryFinanceStage(positionName, city);
             });
 
-
+            //融资阶段各年限人才需求
             queryFinanceStageWorkYear();
         });
 
 
-        function bar() {
+        function queryPositionAllNum() {
 
             var result = getbarData();
             citys = JSON.parse(result);
@@ -188,7 +202,6 @@
         }
 
         //城市对某一职位的需求数据
-
         function queryPositionNum(pName) {
             var result = queryPositionData(pName);
             citys = JSON.parse(result);
@@ -266,7 +279,6 @@
 
 
         //城市不同年限岗位需求数
-
         function queryWorkYearJobNum() {
 
             var workyears = queryWorkYearJobNumData();
@@ -333,8 +345,7 @@
         }
 
 
-        //城市同一职位薪水
-
+        //不同城市同一职位的薪水对比
         function queryPositionNameSalary(pName) {
             var salaryJson = queryPositionNameSalaryData(pName);
             var salary = JSON.parse(salaryJson);
@@ -350,7 +361,7 @@
 
                     option = {
                         title: {
-                            text: '城市不同年限岗位薪水',
+                            text: '不同城市同一职位的薪水对比',
                             subtext: '数据来源拉勾网'
                         },
                         tooltip: {
@@ -399,10 +410,10 @@
         }
 
         //行业薪水分布
-
         function queryIndustrySalary() {
 
             var salaryJson = queryIndustrySalaryData();
+            console.log(salaryJson);
             var salary = JSON.parse(salaryJson);
 
             require(
@@ -442,16 +453,29 @@
                         ],
                         series: salary.ydata
                     };
+
+                    myChart.setOption(option);
                 }
             );
         }
 
+        function queryIndustrySalaryData()
+        {
+            var industrySalaryJson;
+            $.ajax({
+                url: "/api/LagouData/QueryIndustrySalary",
+                async: false,
+                type: "GET",
+                success: function (data) {
+                    industrySalaryJson = data;
+                }
+            });
 
-
+            return industrySalaryJson;
+        }
 
 
         //融资阶段薪水分布
-
         function queryFinanceStage(positionName, city) {
             var financeStageJson = queryFinanceStageData(positionName, city)
            
@@ -516,8 +540,8 @@
             return financeStageJson;
         }
 
-        //融资阶段各年限人才需求
 
+        //融资阶段不同年限人才需求
         function queryFinanceStageWorkYear()
         {
             var financeStageJson = queryFinanceStageWorkYearData()

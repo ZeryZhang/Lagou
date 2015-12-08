@@ -162,7 +162,7 @@ namespace Lagou.Web.Controllers
         }
 
         /// <summary>
-        ///各个城市同一职位的薪水
+        ///不同城市同一职位的薪水对比
         /// </summary>
         /// <param name="positionName"></param>
         /// <returns></returns>
@@ -189,7 +189,7 @@ namespace Lagou.Web.Controllers
                         string salary = getSalaryRange(item.Salary);
                         if (salaryList.Any(o => o.Salary == salary && o.City == item.City))
                         {
-                            var salaryObj = salaryList.FirstOrDefault(o => o.Salary == salary);
+                            var salaryObj = salaryList.FirstOrDefault(o => o.Salary == salary&&o.City==item.City);
                             salaryObj.JobNum += item.JobNum;
                         }
                         else

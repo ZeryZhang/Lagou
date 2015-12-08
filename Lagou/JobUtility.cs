@@ -176,16 +176,16 @@ namespace Lagou
                     url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", city.CityName);
                     foreach (var jobType in jobTypes)
                     {
-                        for (int i = 1; i <= 30; i++)
+                        for (int i = 1; i <= 40; i++)
                         {
-                            Thread.Sleep(4000);
+                            Thread.Sleep(2000);
                             Console.WriteLine("当前城市{0}职位{1},第{2}页数据", city.CityName, jobType.JobName, i);
                             postData = string.Format("first=false&pn={0}&kd={1}", i, jobType.JobName);
 
                             string jobJson = httpUtilty.SendPostHttpRequest(url, postData);
                             var jobdata = DeserializeJob(jobJson);
 
-                            if (jobdata.content.result == null || !jobdata.content.result.Any())
+                            if (i==40||jobdata.content.result == null || !jobdata.content.result.Any())
                             {
                                 redisQueue.Enqueue("Job", jobList);
                                 jobList = new List<JobModel>();

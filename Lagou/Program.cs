@@ -45,7 +45,7 @@ namespace Lagou
         /// </summary>
         public static void InitThreadTimer()
         {
-            timer = new Timer(SaveToDB, null, 0, 1000);
+            timer = new Timer(SaveToDB, null, 0, 5000);
             Console.WriteLine("开始扫描Redis队列");
 
         }
