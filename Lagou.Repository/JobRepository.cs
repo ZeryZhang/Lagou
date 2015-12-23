@@ -111,7 +111,7 @@ namespace Lagou.Repository
         {
             var list = new List<CityCompanyJobEntity>();
 
-            string sql = string.Format(@"SELECT COUNT(*)[JobNum],city FROM Job WHERE PositionName ='{0}'
+            string sql = string.Format(@"SELECT COUNT(*)[JobNum],city FROM Job WHERE PositionName like '%{0}%'
                             GROUP BY City",positionName);
             using (var conn = dapperHelper.GetConnection())
             {
@@ -134,7 +134,7 @@ namespace Lagou.Repository
                                 City ,
                                 Salary
                         FROM    dbo.Job
-                        WHERE   PositionName = '{0}'
+                        WHERE   PositionName like '%{0}%'
                         GROUP BY City ,
                                 Salary
                         ORDER BY City",positionName);
@@ -229,7 +229,7 @@ namespace Lagou.Repository
             string condition = string.Empty;
             if (!string.IsNullOrEmpty(positionName) && !string.IsNullOrEmpty(city))
             {
-                condition = string.Format(" AND PositionName='{0}' AND City='{1}'", positionName, city);
+                condition = string.Format(" AND PositionName like '%{0}%' AND City='{1}'", positionName, city);
 
             }
             string sql = string.Format(@"select COUNT(*)[Num],Salary from Job 

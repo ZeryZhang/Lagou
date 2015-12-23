@@ -126,16 +126,19 @@ namespace Lagou
                             string jobJson = httpUtilty.SendPostHttpRequest(url, postData);
                             var jobdata = DeserializeJob(jobJson);
 
-                            if (jobdata.content.result == null || !jobdata.content.result.Any())
+                            if (i == 40 || jobdata.content.result == null || !jobdata.content.result.Any())
                             {
+                                redisQueue.Enqueue("Job", jobList);
+                                jobList = new List<JobModel>();
                                 Console.WriteLine("==========={0}查询完成,共{1}页数据=========", c.JobName, i);
                                 break;
                             }
                             else
                             {
                                 //Save To Redis Queue
-                                redisQueue.Enqueue("Job", jobdata.content.result);
+                                //redisQueue.Enqueue("Job", jobdata.content.result);
                                 jobList.AddRange(jobdata.content.result);
+
                             }
                         }
 
@@ -178,7 +181,7 @@ namespace Lagou
                     {
                         for (int i = 1; i <= 40; i++)
                         {
-                            Thread.Sleep(2000);
+                            Thread.Sleep(500);
                             Console.WriteLine("当前城市{0}职位{1},第{2}页数据", city.CityName, jobType.JobName, i);
                             postData = string.Format("first=false&pn={0}&kd={1}", i, jobType.JobName);
 

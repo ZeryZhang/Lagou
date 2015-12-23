@@ -83,7 +83,9 @@ namespace Lagou
             html = httpUtility.SendGetHttpRequest("http://www.lagou.com/zhaopin/");
             var citys = jobUtility.GetCitys(html);
             //Save To Redis Queue
-            var jobs = jobUtility.SerialGetAllJobs(citys, jobTypes);
+            //var jobs = jobUtility.SerialGetAllJobs(citys, jobTypes);
+
+            jobUtility.ParallelGetAllJobs(citys, jobTypes);
 
 
         }

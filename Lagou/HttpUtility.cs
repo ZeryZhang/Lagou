@@ -79,7 +79,7 @@ namespace Lagou
             }
             catch (Exception ex)
             {
-                new CommonException(ex.Message, ex);
+                throw new CommonException(ex.Message, ex);
             }
 
             return html;
