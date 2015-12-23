@@ -35,9 +35,32 @@ namespace Lagou
             //getJobThread.IsBackground = true;
             //getJobThread.Start();
 
-           
+            //TestGetData();
 
             Console.Read();
+        }
+
+        public static  void TestGetData()
+        {
+
+            HttpUtility utility = new HttpUtility();
+
+            try
+            {
+
+            for (int i = 0; i < 500; i++)
+            {
+                utility.SendGetHttpRequest("www.lagou.com");
+                Console.WriteLine(string.Format("第{0}次成功", i));
+            }
+
+            }
+            catch (Exception)
+            {
+
+                Console.WriteLine("失败了！！！！"); 
+            }
+
         }
 
         /// <summary>
@@ -62,8 +85,8 @@ namespace Lagou
                 return;
             }
 
-            JobRepository respository = new JobRepository();
-            respository.Insert(jobList);
+            //JobRepository respository = new JobRepository();
+            //respository.Insert(jobList);
         }
 
         /// <summary>

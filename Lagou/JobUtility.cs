@@ -104,6 +104,7 @@ namespace Lagou
             string url = string.Empty;
             string postData = string.Empty;
             var jobList = new List<JobModel>();
+            object locker = new object();
             HttpUtility httpUtilty = new HttpUtility();
             RedisQueue redisQueue = new RedisQueue();
             try
@@ -111,7 +112,7 @@ namespace Lagou
 
                 Parallel.ForEach(citys, o =>
                 {
-                    Thread.Sleep(1000);
+                    //Thread.Sleep(1000);
 
                     url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", o.CityName);
                     Parallel.ForEach(jobTypes, c =>
@@ -128,7 +129,10 @@ namespace Lagou
 
                             if (i == 40 || jobdata.content.result == null || !jobdata.content.result.Any())
                             {
-                                redisQueue.Enqueue("Job", jobList);
+                                lock(locker)
+                                {
+                                   // redisQueue.Enqueue("Job", jobList);
+                                }
                                 jobList = new List<JobModel>();
                                 Console.WriteLine("==========={0}查询完成,共{1}页数据=========", c.JobName, i);
                                 break;
@@ -181,7 +185,7 @@ namespace Lagou
                     {
                         for (int i = 1; i <= 40; i++)
                         {
-                            Thread.Sleep(500);
+                            //Thread.Sleep(500);
                             Console.WriteLine("当前城市{0}职位{1},第{2}页数据", city.CityName, jobType.JobName, i);
                             postData = string.Format("first=false&pn={0}&kd={1}", i, jobType.JobName);
 
