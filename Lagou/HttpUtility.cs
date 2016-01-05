@@ -26,7 +26,6 @@ namespace Lagou
                 request.Method = "GET";
                 request.Headers.Add("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3");
                 request.ContentLength = 0;
-                request.ContentType = "keep-alive";
                 //request.Host = "www.cnblogs.com";
                 request.UserAgent = "Mozilla/5.0 (Windows NT 6.1; rv:25.0) Gecko/20100101 Firefox/25.0";
 
@@ -62,6 +61,7 @@ namespace Lagou
                 request.Accept = "*/*";
                 request.Method = "POST";
                 request.Headers.Add("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3");
+                request.KeepAlive = true;
                 request.ContentType = "application/x-www-form-urlencoded; charset=UTF-8"; //表单提交
                 //request.Host = "www.cnblogs.com";
                 request.UserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)";

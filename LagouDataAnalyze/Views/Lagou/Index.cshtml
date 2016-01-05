@@ -89,11 +89,11 @@
             //城市不同年限岗位需求数
             queryWorkYearJobNum();
 
-            //城市不同年限岗位薪水
+            //不同城市同一岗位薪水对比
             queryPositionNameSalary("java");
             $("#psPositionName").change(function() {
                 var selectedval = $(this).find("option:selected").text();
-                queryPositionNum(selectedval);
+                queryPositionNameSalary(selectedval);
             });
 
             //行业薪水分布

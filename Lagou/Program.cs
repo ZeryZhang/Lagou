@@ -85,8 +85,8 @@ namespace Lagou
                 return;
             }
 
-            //JobRepository respository = new JobRepository();
-            //respository.Insert(jobList);
+            JobRepository respository = new JobRepository();
+            respository.Insert(jobList);
         }
 
         /// <summary>
@@ -106,9 +106,9 @@ namespace Lagou
             html = httpUtility.SendGetHttpRequest("http://www.lagou.com/zhaopin/");
             var citys = jobUtility.GetCitys(html);
             //Save To Redis Queue
-            //var jobs = jobUtility.SerialGetAllJobs(citys, jobTypes);
+            var jobs = jobUtility.SerialGetAllJobs(citys, jobTypes);
 
-            jobUtility.ParallelGetAllJobs(citys, jobTypes);
+            //jobUtility.ParallelGetAllJobs(citys, jobTypes);
 
 
         }
