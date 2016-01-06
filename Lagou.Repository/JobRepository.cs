@@ -110,9 +110,9 @@ namespace Lagou.Repository
         public List<CityCompanyJobEntity> QueryPositionNum(string positionName)
         {
             var list = new List<CityCompanyJobEntity>();
-
-            string sql = string.Format(@"SELECT COUNT(*)[JobNum],city FROM Job WHERE PositionName like '%{0}%'
-                            GROUP BY City order by JobNum desc ", positionName);
+            string condition = _builderConditions(positionName);
+            string sql = string.Format(@"SELECT COUNT(*)[JobNum],city FROM Job WHERE {0}
+                            GROUP BY City order by JobNum desc ", condition);
             using (var conn = dapperHelper.GetConnection())
             {
                 conn.Open();
@@ -130,17 +130,15 @@ namespace Lagou.Repository
         public List<WorkYearSalaryEntity> QueryPositionNameSalary(string positionName)
         {
 
+            string condition = _builderConditions(positionName);
             string sql = string.Format(@"SELECT  COUNT(*) [JobNum] ,
                                 City ,
                                 Salary
                         FROM    dbo.Job
-                        WHERE   PositionName like '%{0}%'
+                        WHERE   {0}
                         GROUP BY City ,
                                 Salary
-                        ORDER BY JobNum desc ", positionName);
-
-
-
+                        ORDER BY JobNum desc ", condition);
 
             using (var conn = dapperHelper.GetConnection())
             {
@@ -225,11 +223,12 @@ namespace Lagou.Repository
 
         public List<FinanceStageSalaryEntity> QueryFinanceStageSalary(string financeStage,string positionName="",string city ="")
         {
-            //TODO:防SQL注入
             string condition = string.Empty;
             if (!string.IsNullOrEmpty(positionName) && !string.IsNullOrEmpty(city))
             {
-                condition = string.Format(" AND PositionName like '%{0}%' AND City='{1}'", positionName, city);
+                string position = _builderConditions(positionName);
+
+                condition = string.Format(" AND {0} AND City='{1}'", position, city);
 
             }
             string sql = string.Format(@"select COUNT(*)[Num],Salary from Job 
@@ -261,6 +260,22 @@ namespace Lagou.Repository
 
         }
 
+
+        private string _builderConditions(string positionName)
+        {
+            string condition = string.Format("PositionName like '%{0}%'", positionName);
+
+            if (positionName.ToLower().Equals("java"))
+            {
+                condition = "PositionName like '%java%' and PositionName not like '%javascript%'";
+            }
+            if (positionName.ToLower().Equals("c#"))
+            {
+                condition = " PositionName  like '%C#%' or PositionName like '%.net%' or PositionName like '%asp.net%'";
+            }
+
+            return condition;
+        }
 
 
         // 同一职位不同城市，不同的年限 的薪水差异
