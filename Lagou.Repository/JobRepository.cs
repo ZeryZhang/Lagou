@@ -11,7 +11,15 @@ namespace Lagou.Repository
 {
     public class JobRepository
     {
-        private DapperHelper dapperHelper = new DapperHelper();
+
+        public JobRepository()
+        {
+            dapperHelper = new DapperHelper();
+        }
+
+        private DapperHelper dapperHelper;
+
+
         public void Insert(JobEntity entity)
         {
             string sql = @"INSERT  INTO Job
@@ -250,7 +258,7 @@ namespace Lagou.Repository
         {
             string sql = @"select COUNT(*)[Num],FinanceStage,WorkYear from Job
                             group by FinanceStage, WorkYear
-                              order by FinanceStage";
+                              order by Num desc ";
 
             using (var conn = dapperHelper.GetConnection())
             {
@@ -276,18 +284,6 @@ namespace Lagou.Repository
 
             return condition;
         }
-
-
-        // 同一职位不同城市，不同的年限 的薪水差异
-
-        //薪水城市年限的差异
-
-        //城市对哪个年限的需求是最大的
-
-
-        //每个年限，每个城市的平均薪水
-
-
 
     }
 }

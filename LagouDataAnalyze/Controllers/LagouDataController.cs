@@ -399,7 +399,6 @@ namespace Lagou.Web.Controllers
                     }
                     else
                     {
-                        //此处逻辑有问题 只有第一条有记录，它没有
                         var jsonObj = industrySalarys.FirstOrDefault(m => m.name == c);
                         jsonObj.data.Add(0);
                     }
@@ -417,12 +416,9 @@ namespace Lagou.Web.Controllers
 
             /*
                 最终数据格式
-                {name:"移动互联网",type:"bar" data:[10,20,30,30]/移动互联网，电子商务，O2O/}
+              {"xdata":["移动互联网","电子商务","金融","O2O","企业服务","数据服务","游戏","教育","硬件","文化娱乐"],"ydata":[{"city":null,"name":"0k-5k","type":"bar","data":[1337,404,223,141,287,386,137,105,86,87]},{"city":null,"name":"6k-10k","type":"bar","data":[8165,2743,1107,1362,1570,1223,726,609,542,446]}]
             */
 
-
-
-            //return string.Empty;
         }
 
 
@@ -443,7 +439,7 @@ namespace Lagou.Web.Controllers
             foreach (var item in result)
             {
                 financeStages.Add(item.FinanceStage);
-                //取每个阶段岗位的薪水范畴
+                //取每个阶段岗位的薪水范围 
                 var salarys = repository.QueryFinanceStageSalary(item.FinanceStage,positionName,city);
                 
                 foreach (var salary in salarys)
@@ -665,7 +661,7 @@ namespace Lagou.Web.Controllers
             *26k-30K
             *30k以上
             */
-            //未确定范围 **以上  的类型
+            
             if (salary == 0)
             {
                 return "0k-5k";

@@ -26,50 +26,21 @@ namespace Lagou
             redisQueue = new RedisQueue();
             //定时器扫描Redis队列数据 存入数据库中
             InitThreadTimer();
-            // redisQueue.Enqueue("Job", "zery");
 
-            SaveToRedisQueue();
-
-            //爬取数据
-            //Thread getJobThread = new Thread(new ThreadStart(SaveToRedisQueue));
-            //getJobThread.IsBackground = true;
-            //getJobThread.Start();
-
-            //TestGetData();
-
+            //取数据存入Redis队列中
+            GetDataToRedisQueue();
+          
             Console.Read();
         }
 
-        public static  void TestGetData()
-        {
-
-            HttpUtility utility = new HttpUtility();
-
-            try
-            {
-
-            for (int i = 0; i < 500; i++)
-            {
-                utility.SendGetHttpRequest("www.lagou.com");
-                Console.WriteLine(string.Format("第{0}次成功", i));
-            }
-
-            }
-            catch (Exception)
-            {
-
-                Console.WriteLine("失败了！！！！"); 
-            }
-
-        }
 
         /// <summary>
-        /// 初始化定时器 (1s 扫描一次Redis队列)
+        /// 初始化定时器 (5s 扫描一次Redis队列)
         /// </summary>
         public static void InitThreadTimer()
         {
             timer = new Timer(SaveToDB, null, 0, 5000);
-            Console.WriteLine("开始扫描Redis队列");
+            Console.WriteLine("*************开始扫描Redis队列**************");
 
         }
         /// <summary>
@@ -90,25 +61,24 @@ namespace Lagou
         }
 
         /// <summary>
-        /// 存入Redis队列
+        /// 获取职位数据存入Redis队列
         /// </summary>
-        public static void SaveToRedisQueue()
+        public static void GetDataToRedisQueue()
         {
-
-            HttpUtility httpUtility = new HttpUtility();
+            
             JobUtility jobUtility = new JobUtility();
             string html = string.Empty;
 
             //jobType
-            html = httpUtility.SendGetHttpRequest("http://www.lagou.com/");
+            html = HttpUtility.SendGetHttpRequest("http://www.lagou.com/");
             var jobTypes = jobUtility.GetJobType(html);
             //City
-            html = httpUtility.SendGetHttpRequest("http://www.lagou.com/zhaopin/");
+            html = HttpUtility.SendGetHttpRequest("http://www.lagou.com/zhaopin/");
             var citys = jobUtility.GetCitys(html);
             //Save To Redis Queue
-            var jobs = jobUtility.SerialGetAllJobs(citys, jobTypes);
+            jobUtility.SerialGetAllJobsToRedis(citys, jobTypes);
 
-            //jobUtility.ParallelGetAllJobs(citys, jobTypes);
+            //jobUtility.ParallelGetAllJobsToRedis(citys, jobTypes);
 
 
         }

@@ -31,7 +31,6 @@ namespace Lagou
             {
                 HtmlNode dlNode = jobCatgroy[i];
 
-
                 List<HtmlNode> jobNodes = dlNode.SelectNodes("dd/a").ToList();
                 jobNodes.ForEach(o => JobTypeList.Add(
                     new JobTypeModel()
@@ -51,11 +50,14 @@ namespace Lagou
         public List<CityModel> GetCitys(string html)
         {
             HtmlDocument document = new HtmlDocument();
-            document.LoadHtml(html);
             List<CityModel> cityList = new List<CityModel>();
+
+            document.LoadHtml(html);
+
             List<HtmlNode> hotCityNodes = document.DocumentNode.SelectNodes("//div[@class='has-more'][1]/li/a[position()>1]").ToList();
             HtmlNode li = document.DocumentNode.SelectNodes("//li[@class='other']").FirstOrDefault();
             List<HtmlNode> otherCityNodes = li.SelectNodes("a").ToList();
+
             hotCityNodes.ForEach(o => cityList.Add(
                     new CityModel()
                     {
@@ -85,7 +87,6 @@ namespace Lagou
 
             if (!string.IsNullOrEmpty(html))
             {
-
                 returnData = JsonConvert.DeserializeObject<ReturnData>(html);
             }
 
@@ -99,63 +100,55 @@ namespace Lagou
         /// <param name="citys"></param>
         /// <param name="jobTypes"></param>
         /// <returns></returns>
-        public List<JobModel> ParallelGetAllJobs(List<CityModel> citys, List<JobTypeModel> jobTypes)
+        public List<JobModel> ParallelGetAllJobsToRedis(List<CityModel> citys, List<JobTypeModel> jobTypes)
         {
-            string url = string.Empty;
             string postData = string.Empty;
             var jobList = new List<JobModel>();
             object locker = new object();
-            HttpUtility httpUtilty = new HttpUtility();
+            
             RedisQueue redisQueue = new RedisQueue();
             try
             {
-
                 Parallel.ForEach(citys, o =>
                 {
-                    //Thread.Sleep(1000);
-
-                    url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", o.CityName);
-                    Parallel.ForEach(jobTypes, c =>
+                    string  url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", o.CityName);
+                    foreach (var jobType in jobTypes)
                     {
-                        Thread.Sleep(1000);
-                        for (int i = 1; i <= 30; i++)
+                        for (int 
+                        i = 1; i <= 30; i++)
                         {
-                            Thread.Sleep(1000);
-                            Console.WriteLine("当前是{0},第{1}页数据", c.JobName, i);
-                            postData = string.Format("first=false&pn={0}&kd={1}", i, c.JobName);
 
-                            string jobJson = httpUtilty.SendPostHttpRequest(url, postData);
-                            var jobdata = DeserializeJob(jobJson);
+                            Console.WriteLine(" 当前城市: {0} 职位: {1} ,第: {2} 页数据", o.CityName, jobType.JobName, i);
+                            postData = string.Format("first=false&pn={0}&kd={1}", i, jobType.JobName);
 
-                            if (i == 40 || jobdata.content.result == null || !jobdata.content.result.Any())
-                            {
-                                lock(locker)
+                            string jobJson = HttpUtility.SendPostHttpRequest(url, postData);
+                            var jobData = DeserializeJob(jobJson);
+
+                            if (i == 40 || jobData.content.result == null || !jobData.content.result.Any())
+                            {//只取40页数据
+                                lock (locker)
                                 {
-                                   // redisQueue.Enqueue("Job", jobList);
+                                    redisQueue.Enqueue("Job", jobList);
                                 }
                                 jobList = new List<JobModel>();
-                                Console.WriteLine("==========={0}查询完成,共{1}页数据=========", c.JobName, i);
+                                Console.WriteLine("*********** {0} 查询完成,共 {1} 页数据***********", jobType.JobName, i);
                                 break;
                             }
                             else
                             {
                                 //Save To Redis Queue
-                                //redisQueue.Enqueue("Job", jobdata.content.result);
-                                jobList.AddRange(jobdata.content.result);
+                                jobList.AddRange(jobData.content.result);
 
                             }
                         }
-
-                    });
+                    }
                 });
-
 
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine("发生异常{0}", ex.Message);
-
+                new CommonException("请求数据异常", ex);
             }
 
             return jobList;
@@ -168,54 +161,49 @@ namespace Lagou
         /// <param name="citys"></param>
         /// <param name="jobTypes"></param>
         /// <returns></returns>
-        public List<JobModel> SerialGetAllJobs(List<CityModel> citys, List<JobTypeModel> jobTypes)
+        public List<JobModel> SerialGetAllJobsToRedis(List<CityModel> citys, List<JobTypeModel> jobTypes)
         {
-            string url = string.Empty;
             string postData = string.Empty;
             var jobList = new List<JobModel>();
-            HttpUtility httpUtilty = new HttpUtility();
             RedisQueue redisQueue = new RedisQueue();
-            
+
             try
             {
                 foreach (var city in citys)
                 {
-                    url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", city.CityName);
+                    string url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", city.CityName);
                     foreach (var jobType in jobTypes)
                     {
                         for (int i = 1; i <= 40; i++)
                         {
-                            //Thread.Sleep(500);
-                            Console.WriteLine("当前城市{0}职位{1},第{2}页数据", city.CityName, jobType.JobName, i);
+                            Console.WriteLine(" 当前城市: {0} 职位: {1} ,第: {2} 页数据", city.CityName, jobType.JobName, i);
                             postData = string.Format("first=false&pn={0}&kd={1}", i, jobType.JobName);
 
-                            string jobJson = httpUtilty.SendPostHttpRequest(url, postData);
-                            var jobdata = DeserializeJob(jobJson);
+                            string jobData = HttpUtility.SendPostHttpRequest(url, postData);
+                            var jobObject = DeserializeJob(jobData);
 
-                            if (i==40||jobdata.content.result == null || !jobdata.content.result.Any())
+                            if (i == 40 || jobObject.content.result == null || !jobObject.content.result.Any())
                             {
-                                //redisQueue.Enqueue("Job", jobList);
+                                redisQueue.Enqueue("Job", jobList);
                                 jobList = new List<JobModel>();
-                                Console.WriteLine("==========={0}查询完成,共{1}页数据=========", jobType.JobName, i);
+
+                                Console.WriteLine("*********** {0} 查询完成,共 {1} 页数据***********", jobType.JobName, i);
                                 break;
                             }
                             else
                             {
                                 //Save To Redis Queue
-                                //redisQueue.Enqueue("Job", jobdata.content.result);
-                                jobList.AddRange(jobdata.content.result);
+                                jobList.AddRange(jobObject.content.result);
 
                             }
                         }
                     }
-
                 }
-
             }
             catch (Exception ex)
             {
-                new CommonException(ex.Message, ex);
-                Console.WriteLine("发生异常{0}", ex.Message);
+                new CommonException("请求数据异常", ex);
+                Console.WriteLine("请求数据异常原因：{0}", ex.Message);
             }
 
             return jobList;

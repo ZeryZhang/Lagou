@@ -21,35 +21,9 @@ namespace Lagou
                 Ssl = false,
                 AllowAdmin = false
             };
-           // options.EndPoints.Add("127.0.0.1", 6379);
             _connectionMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1,6379");
             _db = _connectionMultiplexer.GetDatabase();
         }
-
-        public static ConnectionMultiplexer connection;
-        public static ConnectionMultiplexer Connection
-        {
-            get
-            {
-
-                if (connection == null ||!connection.IsConnected)
-                {
-                    connection =  ConnectionMultiplexer.Connect("127.0.0.1,6379");
-                }
-                return connection;
-            }
-        }
-
-        private static IDatabase cache
-        {
-            get
-            {
-                return Connection.GetDatabase();
-            }
-
-        }
-
-
 
         /// <summary>
         /// Push

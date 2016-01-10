@@ -11,7 +11,7 @@ namespace Lagou
 {
     public class HttpUtility
     {
-        public string SendGetHttpRequest(string url)
+        public static string SendGetHttpRequest(string url)
         {
 
             string html = string.Empty;
@@ -48,7 +48,7 @@ namespace Lagou
 
         }
 
-        public string SendPostHttpRequest(string url, string body)
+        public static string SendPostHttpRequest(string url, string body)
         {
             string html = string.Empty;
             try
@@ -61,7 +61,7 @@ namespace Lagou
                 return response.Content;
 
 
-
+                //此写法不定时会异常 无法建立传输连接：连接已关闭
                 //HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
                 ////WebProxy webproxy = new WebProxy();
                 ////Uri uri = new Uri(string.Format("http://{0}:{1}", "Adrress", "Port"));
