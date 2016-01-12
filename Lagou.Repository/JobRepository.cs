@@ -279,7 +279,7 @@ namespace Lagou.Repository
             }
             if (positionName.ToLower().Equals("c#"))
             {
-                condition = " PositionName  like '%C#%' or PositionName like '%.net%' or PositionName like '%asp.net%'";
+                condition = " (PositionName  like '%C#%' or PositionName like '%.net%' or PositionName like '%asp.net%')";
             }
 
             return condition;
