@@ -39,9 +39,8 @@ namespace Lagou
         /// </summary>
         public static void InitThreadTimer()
         {
-            timer = new Timer(SaveToDB, null, 0, 5000);
+            timer = new Timer(SaveToDB, null, 0, 1000);
             Console.WriteLine("*************开始扫描Redis队列**************");
-
         }
         /// <summary>
         /// 从Reids队列中取中存入DB中
@@ -49,8 +48,9 @@ namespace Lagou
         /// <param name="obj"></param>
         public static void SaveToDB(object obj)
         {
-           
+            //Pop up Queue
             var jobList = redisQueue.Dequeue<List<JobEntity>>("Job");
+
             if (jobList == null || !jobList.Any())
             {
                 return;
@@ -65,7 +65,6 @@ namespace Lagou
         /// </summary>
         public static void GetDataToRedisQueue()
         {
-            
             JobUtility jobUtility = new JobUtility();
             string html = string.Empty;
 

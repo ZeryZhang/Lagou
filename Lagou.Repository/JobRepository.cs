@@ -98,7 +98,7 @@ namespace Lagou.Repository
         public List<CityCompanyJobEntity> QueryCityCompanyNum()
         {
             var companyList = new List<CityCompanyJobEntity>();
-            string sql = @"SELECT City,COUNT(DISTINCT CompanyName) AS CompanyNum
+            string sql = @"SELECT TOP 15 City,COUNT(DISTINCT CompanyName) AS CompanyNum
                         FROM Job
                         GROUP BY City  ORDER BY CompanyNum DESC ";
 
@@ -119,7 +119,7 @@ namespace Lagou.Repository
         {
             var list = new List<CityCompanyJobEntity>();
             string condition = _builderConditions(positionName);
-            string sql = string.Format(@"SELECT COUNT(*)[JobNum],city FROM Job WHERE {0}
+            string sql = string.Format(@"SELECT TOP 15 COUNT(*)[JobNum],city FROM Job WHERE {0}
                             GROUP BY City order by JobNum desc ", condition);
             using (var conn = dapperHelper.GetConnection())
             {
@@ -143,7 +143,7 @@ namespace Lagou.Repository
                                 City ,
                                 Salary
                         FROM    dbo.Job
-                        WHERE   {0}
+                        WHERE   {0}   AND City in(select City from  (select top 15 SUM(1)[Num],City from Job group by City order by Num desc )as city)
                         GROUP BY City ,
                                 Salary
                         ORDER BY JobNum desc ", condition);
@@ -168,6 +168,7 @@ namespace Lagou.Repository
                                 City ,
                                 WorkYear
                         FROM    dbo.Job
+                        where City in(select City from  (select top 15 SUM(1)[Num],City from Job group by City order by Num desc )as city)
                         GROUP BY City ,
                                 WorkYear
                         ORDER BY JobNum desc";

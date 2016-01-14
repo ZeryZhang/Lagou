@@ -103,7 +103,7 @@ namespace Lagou
         public List<JobModel> ParallelGetAllJobsToRedis(List<CityModel> citys, List<JobTypeModel> jobTypes)
         {
             string postData = string.Empty;
-            var jobList = new List<JobModel>();
+           
             object locker = new object();
             
             RedisQueue redisQueue = new RedisQueue();
@@ -111,13 +111,14 @@ namespace Lagou
             {
                 Parallel.ForEach(citys, o =>
                 {
+                    
                     string  url = string.Format("http://www.lagou.com/jobs/positionAjax.json?city={0}", o.CityName);
+
                     foreach (var jobType in jobTypes)
                     {
-                        for (int 
-                        i = 1; i <= 30; i++)
+                        var jobList = new List<JobModel>();
+                        for (int  i = 1; i <= 40; i++)
                         {
-
                             Console.WriteLine(" 当前城市: {0} 职位: {1} ,第: {2} 页数据", o.CityName, jobType.JobName, i);
                             postData = string.Format("first=false&pn={0}&kd={1}", i, jobType.JobName);
 
@@ -151,7 +152,7 @@ namespace Lagou
                 new CommonException("请求数据异常", ex);
             }
 
-            return jobList;
+            return null;
         }
 
 

@@ -54,10 +54,10 @@ namespace Lagou
             try
             {
                 RestRequest request = new RestRequest(Method.POST);
-                request.AddHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
-                request.AddHeader("Accept", "*/*");
-                request.AddHeader("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3");
-                request.AddHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;");
+                //request.AddHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+                //request.AddHeader("Accept", "*/*");
+                //request.AddHeader("Accept-Language", "zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3");
+                //request.AddHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;");
                 //request.AddParameter("first", "false");
                 //request.AddParameter("pn", "1");
                 //request.AddParameter("kd", "Hadoop");
